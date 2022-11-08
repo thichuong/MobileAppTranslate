@@ -68,42 +68,49 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
 
         child: Column(
-
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            new DropdownButtonLanguage(
-              selectedValue : FromLanguage,
-              onChanged: (value)
-              {
-              setState(() {
-                FromLanguage = value!;
-                translatext(_InputTextController.text);
-              });
-              },
-            ),
-            new InputField(
-              controller : _InputTextController,
-              onChanged : (text) {
-                if (text.isNotEmpty)
-                  translatext(text);
-                else
+            new Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  new DropdownButtonLanguage(
+                selectedValue : FromLanguage,
+                onChanged: (value)
+                {
+                  setState(() {
+                    FromLanguage = value!;
+                    translatext(_InputTextController.text);
+                  });
+                  },
+                ),
+                  new InputField(
+                  controller : _InputTextController,
+                  onChanged : (text) {
+                    if (text.isNotEmpty)
+                      translatext(text);
+                    else
+                      {
+                        translatext('');
+                      }
+                    },
+                ),
+                  new DropdownButtonLanguage(
+                  selectedValue : ToLanguage,
+                  onChanged: (value)
                   {
-                    translatext('');
-                  }
-                },
-            ),
-            new DropdownButtonLanguage(
-              selectedValue : ToLanguage,
-              onChanged: (value)
-              {
-                setState(() {
-                  ToLanguage = value!;
-                  translatext(_InputTextController.text);
-                });
-              },
-            ),
-            new TranslateOutText(
-              controller : _OutputTextController,
+                    setState(() {
+                      ToLanguage = value!;
+                      translatext(_InputTextController.text);
+                    });
+                  },
+                ),
+                  new TranslateOutText(
+                  controller : _OutputTextController,
+                ),
+                ],
+              ),
             ),
           ],
         ),

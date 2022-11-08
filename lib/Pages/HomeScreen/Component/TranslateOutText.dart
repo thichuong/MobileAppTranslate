@@ -35,7 +35,6 @@ class TranslateOutText extends StatelessWidget {
           ),
 
           alignment: Alignment.center,
-          width: 1.7976931348623157e+308,
         ),
 
       ],

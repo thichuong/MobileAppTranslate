@@ -11,18 +11,9 @@ class DropdownButtonLanguage extends StatelessWidget {
     items,
   });
   final ValueChanged<String?>? onChanged;
-
-  //final TextEditingController? TranslateText;
   var  items = LanguageList.GetList();
   final String? selectedValue;
 
-  void _onEditing(String textIn) async
-  {
-    var textTemp = await Translation().translate(textIn,languagefrom : 'en',languageto: 'vi');
-
-    var textInput = '$textTemp';
-
-  }
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -35,13 +26,10 @@ class DropdownButtonLanguage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 DropdownButton2(
-
                   // Initial Value
                   value: selectedValue,
-
                   // Down Arrow Icon
                   icon: const Icon(Icons.keyboard_arrow_down),
-
                   // Array list of items
                   items: items.map((Language items) {
                     return DropdownMenuItem(
@@ -54,11 +42,8 @@ class DropdownButtonLanguage extends StatelessWidget {
                   onChanged: onChanged,
                 ),
               ]
-
           ),
-
-          alignment: Alignment.center,
-          width: 1.7976931348623157e+308,
+          alignment: Alignment.bottomLeft,
         ),
 
       ],

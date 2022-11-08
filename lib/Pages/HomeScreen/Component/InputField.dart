@@ -38,7 +38,7 @@ class InputField extends StatelessWidget {
 
           padding: const EdgeInsets.all(0.0),
           alignment: Alignment.topLeft,
-          width: 1.7976931348623157e+308,
+
         ),
 
       ],
