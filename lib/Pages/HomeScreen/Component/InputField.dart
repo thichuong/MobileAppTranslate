@@ -17,30 +17,26 @@ class InputField extends StatelessWidget {
       children: <Widget>[
         new Container(
           child:
-          new Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                new TextField(
-                  controller: controller,
-                  onChanged: this.onChanged,
-                  autofocus: true,
-                  style: new TextStyle(fontSize:18.0,
-                      color: const Color(0xFF000000),
-                      fontWeight: FontWeight.w200,
-                      fontFamily: "Roboto"),
-                  maxLines: null,
-                )
-              ]
-
-          ),
-
+            Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  new TextFormField (
+                    controller: controller,
+                    onChanged: this.onChanged,
+                    autofocus: true,
+                    style: new TextStyle(fontSize:18.0,
+                        color: const Color(0xFF000000),
+                        fontWeight: FontWeight.w200,
+                        fontFamily: "Roboto"),
+                    maxLines: null,
+                  ),
+                ],
+              ),
           padding: const EdgeInsets.all(0.0),
           alignment: Alignment.topLeft,
-
         ),
-
       ],
     );
   }

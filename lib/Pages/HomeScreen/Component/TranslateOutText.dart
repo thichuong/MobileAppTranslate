@@ -21,7 +21,7 @@ class TranslateOutText extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                new TextField(
+                new TextFormField(
                   controller: controller,
                   autofocus: true,
                   style: new TextStyle(fontSize:18.0,

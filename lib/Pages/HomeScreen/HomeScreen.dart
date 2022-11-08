@@ -29,19 +29,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void translatext(String textIn) async
   {
-    if (textIn.isNotEmpty)
-    {
-      var textTemp = await Translation().translate(textIn,languagefrom : FromLanguage,languageto: ToLanguage);
+    if(textIn.replaceAll(' ', '').replaceAll('\n','').isEmpty)
+      {
+        _OutputTextController.text = '';
+        return;
+      }
+    var textTemp = await Translation.instance.translate(textIn,languagefrom : FromLanguage,languageto: ToLanguage);
       setState(()  {
         _OutputTextController.text = '$textTemp';
       });
-    }
-    else
-      {
-        setState(()  {
-          _OutputTextController.text = '';
-        });
-      }
   }
 
   @override
@@ -88,12 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   new InputField(
                   controller : _InputTextController,
                   onChanged : (text) {
-                    if (text.isNotEmpty)
                       translatext(text);
-                    else
-                      {
-                        translatext('');
-                      }
                     },
                 ),
                   new DropdownButtonLanguage(
