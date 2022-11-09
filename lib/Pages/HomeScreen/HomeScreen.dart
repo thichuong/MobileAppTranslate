@@ -4,6 +4,8 @@ import '/Translation/Translation.dart';
 import '/Pages/HomeScreen/Component/InputField.dart';
 import '/Pages/HomeScreen/Component/TranslateOutText.dart';
 import '/Pages/HomeScreen/Component/Dropdown_button_language.dart';
+import '/Pages/HomeScreen/Component/GroupButton.dart';
+
 import '/Translation/language.dart';
 
 final String textInput = "";
@@ -71,16 +73,16 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  new DropdownButtonLanguage(
-                selectedValue : FromLanguage,
-                onChanged: (value)
-                {
-                  setState(() {
-                    FromLanguage = value!;
-                    translatext(_InputTextController.text);
-                  });
-                  },
-                ),
+                  new GroupButton(
+                    selectedLanguage : FromLanguage,
+                    onChangedLanguage: (value)
+                    {
+                      setState(() {
+                        FromLanguage = value!;
+                        translatext(_InputTextController.text);
+                      });
+                    },
+                  ),
                   new InputField(
                   controller : _InputTextController,
                   onChanged : (text) {
