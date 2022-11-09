@@ -10,30 +10,46 @@ class GroupButton extends StatelessWidget {
     this.onChangedLanguage,
     this.selectedLanguage,
     this.onPressedClearButton,
-    ClearButton,
+    this.onPressedCopyButton,
     dropdownButtonLanguage,
+    ClearButton,
+    CopyButton,
   });
 
   final ValueChanged<String?>? onChangedLanguage;
   final String? selectedLanguage;
   final VoidCallback? onPressedClearButton;
+  final VoidCallback? onPressedCopyButton;
 
-  TextButton? ClearButton;
   DropdownButtonLanguage? dropdownButtonLanguage;
+  TextButton? ClearButton;
+  TextButton? CopyButton;
 
   @override
   Widget build(BuildContext context) {
-    TextButton ClearButton = TextButton(
-        style: TextButton.styleFrom(
-          primary: Colors.blue, // background
-        ),
-        onPressed: onPressedClearButton,
-        child: Text('X', style: TextStyle(fontSize: 18))
-    );
+    Color colorButton = Colors.blueAccent;
+
     DropdownButtonLanguage dropdownButtonLanguage = new DropdownButtonLanguage(
       selectedValue : selectedLanguage,
       onChanged: onChangedLanguage,
     );
+    TextButton ClearButton = TextButton.icon(
+      style: TextButton.styleFrom(
+        primary: colorButton, // text + icon color
+      ),
+      icon: Icon(Icons.clear, size: 32),
+      label: Text('', style: TextStyle(fontSize: 28)),
+      onPressed: onPressedClearButton,
+    );
+    TextButton CopyButton =  TextButton.icon(
+      style: TextButton.styleFrom(
+        primary: colorButton, // text + icon color
+      ),
+      icon: Icon(Icons.copy_all_outlined, size: 32),
+      label: Text('', style: TextStyle(fontSize: 28)),
+      onPressed: onPressedCopyButton,
+    );
+
 
     return Column(
       children: <Widget>[
@@ -53,6 +69,7 @@ class GroupButton extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         ClearButton,
+                        CopyButton,
                       ]
                   ),
                   alignment: Alignment.bottomLeft,

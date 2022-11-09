@@ -24,6 +24,7 @@ class TranslateOutText extends StatelessWidget {
                 new TextFormField(
                   controller: controller,
                   autofocus: true,
+                  readOnly: true,
                   style: new TextStyle(fontSize:18.0,
                       color: const Color(0xFF000000),
                       fontWeight: FontWeight.w200,

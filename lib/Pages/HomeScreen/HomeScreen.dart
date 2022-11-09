@@ -5,10 +5,9 @@ import '/Pages/HomeScreen/Component/InputField.dart';
 import '/Pages/HomeScreen/Component/TranslateOutText.dart';
 import '/Pages/HomeScreen/Component/Dropdown_button_language.dart';
 import '/Pages/HomeScreen/Component/GroupButton.dart';
+import '/Pages/HomeScreen/Component/TranslateForm.dart';
 
 import '/Translation/language.dart';
-
-final String textInput = "";
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -76,44 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            new Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new GroupButton(
-                    selectedLanguage : FromLanguage,
-                    onChangedLanguage: (value)
-                    {
-                      setState(() {
-                        FromLanguage = value!;
-                        translatext(_InputTextController.text);
-                      });
-                    },
-                    onPressedClearButton: ClearOnPress,
-                  ),
-                  new InputField(
-                  controller : _InputTextController,
-                  onChanged : (text) {
-                      translatext(text);
-                    },
-                ),
-                  new DropdownButtonLanguage(
-                  selectedValue : ToLanguage,
-                  onChanged: (value)
-                  {
-                    setState(() {
-                      ToLanguage = value!;
-                      translatext(_InputTextController.text);
-                    });
-                  },
-                ),
-                  new TranslateOutText(
-                  controller : _OutputTextController,
-                ),
-                ],
-              ),
-            ),
+            new TranslateForm(),
           ],
         ),
       ),
