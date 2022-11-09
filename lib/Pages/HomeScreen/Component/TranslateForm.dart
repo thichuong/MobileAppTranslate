@@ -7,19 +7,12 @@ import '/Pages/HomeScreen/Component/TranslateOutText.dart';
 import '/Pages/HomeScreen/Component/Dropdown_button_language.dart';
 import '/Pages/HomeScreen/Component/GroupButton.dart';
 
-import 'package:flutter/material.dart';
-import '/Translation/Translation.dart';
 
-import '/Pages/HomeScreen/Component/InputField.dart';
-import '/Pages/HomeScreen/Component/TranslateOutText.dart';
-import '/Pages/HomeScreen/Component/Dropdown_button_language.dart';
-import '/Pages/HomeScreen/Component/GroupButton.dart';
-
-
-import '/Translation/language.dart';
+import 'package:flutter_mobile_vision_2/flutter_mobile_vision_2.dart';
 
 class TranslateForm extends StatefulWidget {
-  const TranslateForm({Key? key}) : super(key: key);
+  const TranslateForm({Key? key}
+      ) : super(key: key);
 
   @override
   State<TranslateForm> createState() => _TranslateForm();
@@ -30,8 +23,14 @@ class _TranslateForm extends State<TranslateForm> {
   final TextEditingController _OutputTextController = TextEditingController();
   var FromLanguage = 'en';
   var ToLanguage = 'vi';
+
+  bool isInitilized = false;
+
   @override
   void initState() {
+    FlutterMobileVision.start().then((value) {
+      isInitilized = true;
+    });
     super.initState();
   }
 
@@ -62,21 +61,44 @@ class _TranslateForm extends State<TranslateForm> {
     super.dispose();
   }
 
+  Future<Null> _startScan() async {
+    List<OcrText> list = [];
+    String temp = '';
+    try {
+
+      list = await FlutterMobileVision.read(
+        waitTap: true,
+        fps: 5,
+        multiple: true,
+        forceCloseCameraOnTap: true,
+        autoFocus: true,
+        camera: FlutterMobileVision.CAMERA_BACK,
+        showText: true,
+      );
+      temp = '';
+      for (OcrText text in list) {
+        temp = temp + ' ' + (text.value);
+        print('valueis ${text.value}');
+      }
+
+    } catch (e) {list.add(OcrText('Failed to recognize text.'));}
+    setState(() {
+      _InputTextController.text = temp;
+      translatext(temp);
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            new Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-              child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        new Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+          child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   new GroupButton(
@@ -115,8 +137,14 @@ class _TranslateForm extends State<TranslateForm> {
                   ),
                 ],
               ),
+          height: 500,
+        ),
+        new FloatingActionButton(
+          onPressed: _startScan,
+          tooltip: 'Increment',
+          child: Icon(Icons.camera_alt),
             ),
-          ],
-        );
+      ],
+    );
   }
 }

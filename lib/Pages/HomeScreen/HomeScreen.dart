@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import '/Translation/Translation.dart';
 
-import '/Pages/HomeScreen/Component/InputField.dart';
-import '/Pages/HomeScreen/Component/TranslateOutText.dart';
-import '/Pages/HomeScreen/Component/Dropdown_button_language.dart';
-import '/Pages/HomeScreen/Component/GroupButton.dart';
 import '/Pages/HomeScreen/Component/TranslateForm.dart';
+import 'package:flutter_mobile_vision_2/flutter_mobile_vision_2.dart';
 
-import '/Translation/language.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -19,39 +14,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _InputTextController = TextEditingController();
-  final TextEditingController _OutputTextController = TextEditingController();
-  var FromLanguage = 'en';
-  var ToLanguage = 'vi';
+  final TextEditingController InputTextController = TextEditingController();
+
+  bool isInitilized = false;
   @override
   void initState() {
+    FlutterMobileVision.start().then((value) {
+      isInitilized = true;
+    });
     super.initState();
   }
 
-  void translatext(String textIn) async
-  {
-    if(textIn.replaceAll(' ', '').replaceAll('\n','').isEmpty)
-      {
-        _OutputTextController.text = '';
-        return;
-      }
-    var textTemp = await Translation.instance.translate(textIn,languagefrom : FromLanguage,languageto: ToLanguage);
-      setState(()  {
-        _OutputTextController.text = '$textTemp';
-      });
-  }
-
-  void ClearOnPress()
-  {
-    setState(()  {
-      _InputTextController.text = '';
-      _OutputTextController.text = '';
-    });
-  }
 
   @override
   void dispose() {
-    _InputTextController.dispose();
+    InputTextController.dispose();
     super.dispose();
   }
 
@@ -71,7 +48,6 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
@@ -79,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+      resizeToAvoidBottomInset: false,
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '/Translation/Translation.dart';
 
 
 class InputField extends StatelessWidget {
@@ -35,7 +34,7 @@ class InputField extends StatelessWidget {
                 ],
               ),
           padding: const EdgeInsets.all(0.0),
-          alignment: Alignment.topLeft,
+          alignment: Alignment.center,
         ),
       ],
     );
