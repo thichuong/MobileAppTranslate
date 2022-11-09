@@ -9,20 +9,32 @@ class GroupButton extends StatelessWidget {
   GroupButton({
     this.onChangedLanguage,
     this.selectedLanguage,
+    this.onPressedClearButton,
+    ClearButton,
+    dropdownButtonLanguage,
   });
+
   final ValueChanged<String?>? onChangedLanguage;
   final String? selectedLanguage;
+  final VoidCallback? onPressedClearButton;
 
-  TextButton ClearButton = new TextButton(
-    style: ButtonStyle(
-      foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
-    ),
-    onPressed: () { },
-    child: Text('X'),
-  );
+  TextButton? ClearButton;
+  DropdownButtonLanguage? dropdownButtonLanguage;
 
   @override
   Widget build(BuildContext context) {
+    TextButton ClearButton = TextButton(
+        style: TextButton.styleFrom(
+          primary: Colors.blue, // background
+        ),
+        onPressed: onPressedClearButton,
+        child: Text('X', style: TextStyle(fontSize: 18))
+    );
+    DropdownButtonLanguage dropdownButtonLanguage = new DropdownButtonLanguage(
+      selectedValue : selectedLanguage,
+      onChanged: onChangedLanguage,
+    );
+
     return Column(
       children: <Widget>[
         new Container(
@@ -32,10 +44,7 @@ class GroupButton extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                new DropdownButtonLanguage(
-                  selectedValue : selectedLanguage,
-                  onChanged: onChangedLanguage,
-                ),
+                dropdownButtonLanguage,
                 new Container(
                   child:
                   new Row(

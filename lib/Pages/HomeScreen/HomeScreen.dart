@@ -42,6 +42,14 @@ class _MyHomePageState extends State<MyHomePage> {
       });
   }
 
+  void ClearOnPress()
+  {
+    setState(()  {
+      _InputTextController.text = '';
+      _OutputTextController.text = '';
+    });
+  }
+
   @override
   void dispose() {
     _InputTextController.dispose();
@@ -82,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         translatext(_InputTextController.text);
                       });
                     },
+                    onPressedClearButton: ClearOnPress,
                   ),
                   new InputField(
                   controller : _InputTextController,
