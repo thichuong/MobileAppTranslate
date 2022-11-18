@@ -68,7 +68,7 @@ class _TranslateForm extends State<TranslateForm> {
 
       list = await FlutterMobileVision.read(
         waitTap: true,
-        fps: 5,
+        fps: 1,
         multiple: true,
         forceCloseCameraOnTap: true,
         autoFocus: true,
