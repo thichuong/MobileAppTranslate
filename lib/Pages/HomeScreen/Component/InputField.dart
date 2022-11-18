@@ -15,26 +15,28 @@ class InputField extends StatelessWidget {
     return Column(
       children: <Widget>[
         new Container(
-          child:
-            Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  new TextFormField (
-                    controller: controller,
-                    onChanged: this.onChanged,
-                    autofocus: true,
-                    style: new TextStyle(fontSize:18.0,
-                        color: const Color(0xFF000000),
-                        fontWeight: FontWeight.w200,
-                        fontFamily: "Roboto"),
-                    maxLines: null,
-                  ),
-                ],
-              ),
+          child: new SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                new TextFormField (
+                  controller: controller,
+                  onChanged: this.onChanged,
+                  autofocus: true,
+                  style: new TextStyle(fontSize:18.0,
+                      color: const Color(0xFF000000),
+                      fontWeight: FontWeight.w200,
+                      fontFamily: "Roboto"),
+                  maxLines: null,
+                ),
+              ],
+            ),
+          ),
           padding: const EdgeInsets.all(0.0),
-          alignment: Alignment.center,
+          alignment: Alignment.topLeft,
+          height: 200,
         ),
       ],
     );
