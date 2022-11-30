@@ -11,16 +11,17 @@ import '/Pages/HomeScreen/Component/GroupButton.dart';
 import 'package:flutter_mobile_vision_2/flutter_mobile_vision_2.dart';
 
 class TranslateForm extends StatefulWidget {
-  const TranslateForm({Key? key}
+  const TranslateForm({Key? key,required this.InputTextController}
       ) : super(key: key);
-
+  final TextEditingController? InputTextController;
   @override
-  State<TranslateForm> createState() => _TranslateForm();
+  State<TranslateForm> createState() => _TranslateForm(this.InputTextController);
 }
 
 class _TranslateForm extends State<TranslateForm> {
-  final TextEditingController _InputTextController = TextEditingController();
-  final TextEditingController _OutputTextController = TextEditingController();
+  _TranslateForm(this.InputTextController);
+  final TextEditingController? InputTextController;
+  final TextEditingController OutputTextController = TextEditingController();
   var FromLanguage = 'en';
   var ToLanguage = 'vi';
 
@@ -32,32 +33,36 @@ class _TranslateForm extends State<TranslateForm> {
       isInitilized = true;
     });
     super.initState();
+
   }
 
   void translatext(String textIn) async
   {
+    print(textIn);
     if(textIn.replaceAll(' ', '').replaceAll('\n','').isEmpty)
     {
-      _OutputTextController.text = '';
+      setState(()  {
+        OutputTextController.text = '';
+      });
       return;
     }
     var textTemp = await Translation.instance.translate(textIn,languagefrom : FromLanguage,languageto: ToLanguage);
     setState(()  {
-      _OutputTextController.text = '$textTemp';
+      OutputTextController.text = '$textTemp';
     });
   }
 
   void ClearOnPress()
   {
     setState(()  {
-      _InputTextController.text = '';
-      _OutputTextController.text = '';
+      InputTextController!.text = '';
+      OutputTextController.text = '';
     });
   }
 
   @override
   void dispose() {
-    _InputTextController.dispose();
+    InputTextController!.dispose();
     super.dispose();
   }
 
@@ -83,7 +88,7 @@ class _TranslateForm extends State<TranslateForm> {
 
     } catch (e) {list.add(OcrText('Failed to recognize text.'));}
     setState(() {
-      _InputTextController.text = temp;
+      InputTextController!.text = temp;
       translatext(temp);
     });
   }
@@ -91,6 +96,10 @@ class _TranslateForm extends State<TranslateForm> {
 
   @override
   Widget build(BuildContext context) {
+    InputTextController!.addListener(() {
+      translatext(InputTextController!.text);
+    });
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       mainAxisSize: MainAxisSize.max,
@@ -107,19 +116,19 @@ class _TranslateForm extends State<TranslateForm> {
                     {
                       setState(() {
                         FromLanguage = value!;
-                        translatext(_InputTextController.text);
+                        translatext(InputTextController!.text);
                       });
                     },
                     onPressedClearButton: ClearOnPress,
                     onPressedCopyButton: () async {
-                      await Clipboard.setData(ClipboardData(text: _OutputTextController.text));
+                      await Clipboard.setData(ClipboardData(text: OutputTextController.text));
                       // copied successfully
                     },
                   ),
                   new InputField(
-                    controller : _InputTextController,
+                    controller : InputTextController,
                     onChanged : (text) {
-                      translatext(text);
+                      //translatext(text);
                     },
                   ),
                   new DropdownButtonLanguage(
@@ -128,22 +137,17 @@ class _TranslateForm extends State<TranslateForm> {
                     {
                       setState(() {
                         ToLanguage = value!;
-                        translatext(_InputTextController.text);
+                        translatext(InputTextController!.text);
                       });
                     },
                   ),
                   new TranslateOutText(
-                    controller : _OutputTextController,
+                    controller : OutputTextController,
                   ),
                 ],
               ),
           height: 500,
         ),
-        new FloatingActionButton(
-          onPressed: _startScan,
-          tooltip: 'Increment',
-          child: Icon(Icons.camera_alt),
-            ),
       ],
     );
   }

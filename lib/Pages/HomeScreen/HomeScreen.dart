@@ -14,8 +14,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController InputTextController = TextEditingController();
 
+  final TextEditingController InputTextController = TextEditingController();
   bool isInitilized = false;
   @override
   void initState() {
@@ -23,24 +23,46 @@ class _MyHomePageState extends State<MyHomePage> {
       isInitilized = true;
     });
     super.initState();
+
   }
 
 
   @override
   void dispose() {
-    InputTextController.dispose();
     super.dispose();
+    InputTextController.dispose();
+  }
+  Future<Null> _startScan() async {
+    List<OcrText> list = [];
+    String temp = '';
+    try {
+
+      list = await FlutterMobileVision.read(
+        waitTap: true,
+        fps: 1,
+        multiple: true,
+        forceCloseCameraOnTap: true,
+        autoFocus: true,
+        camera: FlutterMobileVision.CAMERA_BACK,
+        showText: true,
+      );
+      temp = '';
+      for (OcrText text in list) {
+        temp = temp + ' ' + (text.value);
+        //print('valueis ${text.value}');
+      }
+
+    } catch (e) {list.add(OcrText('Failed to recognize text.'));}
+    setState(() {
+      InputTextController.text = temp;
+      print(temp);
+    });
   }
 
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -51,7 +73,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            new TranslateForm(),
+            new TranslateForm(InputTextController: InputTextController , ),
+            new FloatingActionButton(
+              onPressed: _startScan,
+              tooltip: 'Increment',
+              child: Icon(Icons.camera_alt),
+            ),
           ],
         ),
       ),
