@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '/Translation/Translation.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-import '/Pages/HomeScreen/Component/Dropdown_button_language.dart';
+import 'Button/Dropdown_button_language.dart';
 import '/Translation/language.dart';
 
 class GroupButton extends StatelessWidget {

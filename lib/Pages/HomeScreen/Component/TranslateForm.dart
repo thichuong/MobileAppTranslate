@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '/Translation/Translation.dart';
 import 'package:flutter/services.dart';
 
-import '/Pages/HomeScreen/Component/InputField.dart';
-import '/Pages/HomeScreen/Component/TranslateOutText.dart';
-import '/Pages/HomeScreen/Component/Dropdown_button_language.dart';
+import 'Button/InputField.dart';
+import 'Button/TranslateOutText.dart';
+import 'Button/Dropdown_button_language.dart';
 import '/Pages/HomeScreen/Component/GroupButton.dart';
 
 
