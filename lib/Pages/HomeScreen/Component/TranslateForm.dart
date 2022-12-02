@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '/Translation/Translation.dart';
+import '/SpeechAndText/TextToSpeech.dart';
 import 'package:flutter/services.dart';
 
 import 'Button/InputField.dart';
 import 'Button/TranslateOutText.dart';
 import 'Button/Dropdown_button_language.dart';
 import '/Pages/HomeScreen/Component/GroupButton.dart';
-
+import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:flutter_mobile_vision_2/flutter_mobile_vision_2.dart';
 
@@ -24,7 +25,7 @@ class _TranslateForm extends State<TranslateForm> {
   final TextEditingController OutputTextController = TextEditingController();
   var FromLanguage = 'en';
   var ToLanguage = 'vi';
-
+  bool isSpeak = false;
   bool isInitilized = false;
 
   @override
@@ -32,74 +33,72 @@ class _TranslateForm extends State<TranslateForm> {
     FlutterMobileVision.start().then((value) {
       isInitilized = true;
     });
+    InputTextController!.addListener(() {
+      translatext(InputTextController!.text);
+    });
     super.initState();
 
   }
 
   void translatext(String textIn) async
   {
-    print(textIn);
-    if(textIn.replaceAll(' ', '').replaceAll('\n','').isEmpty)
+    if(textIn == '')
+      {
+        setState(()  {
+          OutputTextController.text = '';
+        });
+        return;
+      }
+    else if(textIn.replaceAll(' ', '').replaceAll('\n','') == '')
     {
       setState(()  {
         OutputTextController.text = '';
       });
       return;
     }
-    var textTemp = await Translation.instance.translate(textIn,languagefrom : FromLanguage,languageto: ToLanguage);
-    setState(()  {
-      OutputTextController.text = '$textTemp';
-    });
+    else {
+      var textTemp = await Translation.instance.translate(
+          textIn, languagefrom: FromLanguage, languageto: ToLanguage);
+      setState(() {
+        OutputTextController.text = '$textTemp';
+      }
+      );
+    }
   }
 
   void ClearOnPress()
   {
     setState(()  {
-      OutputTextController.text = '';
       InputTextController!.text = '';
+      OutputTextController.text = '';
     });
   }
 
+  void _speak(String text)
+  {
+    if(!isSpeak)
+      {
+        isSpeak = true;
+        TextToSpeech.instance.speak(text);
+      }
+    else
+      {
+        isSpeak = false;
+        TextToSpeech.instance.stop();
+      }
+  }
   @override
   void dispose() {
     InputTextController!.dispose();
     super.dispose();
   }
 
-  Future<Null> _startScan() async {
-    List<OcrText> list = [];
-    String temp = '';
-    try {
-
-      list = await FlutterMobileVision.read(
-        waitTap: true,
-        fps: 1,
-        multiple: true,
-        forceCloseCameraOnTap: true,
-        autoFocus: true,
-        camera: FlutterMobileVision.CAMERA_BACK,
-        showText: true,
-      );
-      temp = '';
-      for (OcrText text in list) {
-        temp = temp + ' ' + (text.value);
-        print('valueis ${text.value}');
-      }
-
-    } catch (e) {list.add(OcrText('Failed to recognize text.'));}
-    setState(() {
-      InputTextController!.text = temp;
-      translatext(temp);
-    });
-  }
-
 
   @override
   Widget build(BuildContext context) {
-    //Lay su kien thay doi chuoi text
-    InputTextController!.addListener(() {
-      translatext(InputTextController!.text);
-    });
+
+    //setcompletionHandler
+    TextToSpeech.instance.setcompletionHandler(() { isSpeak = false; });
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -127,15 +126,16 @@ class _TranslateForm extends State<TranslateForm> {
                       },
                       onPressedClearButton: ClearOnPress,
                       onPressedCopyButton: () async {
-                        await Clipboard.setData(ClipboardData(text: OutputTextController.text));
+                        await Clipboard.setData(ClipboardData(text: InputTextController!.text));
                         // copied successfully
                       },
+                      onPressedToSpeechButton: () async {_speak(InputTextController!.text);},
                     ),
                     new InputField(
                       controller : InputTextController,
-                      onChanged : (text) {
+                      /*onChanged : (text) {
                         //translatext(text);
-                      },
+                      },*/
                     ),
                   ],
                 ),
@@ -145,6 +145,7 @@ class _TranslateForm extends State<TranslateForm> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
+/*
                     new DropdownButtonLanguage(
                       selectedValue : ToLanguage,
                       onChanged: (value)
@@ -154,6 +155,23 @@ class _TranslateForm extends State<TranslateForm> {
                           translatext(InputTextController!.text);
                         });
                       },
+                    ),
+*/
+                    new GroupButton(
+                      selectedLanguage : ToLanguage,
+                      onChangedLanguage: (value)
+                      {
+                        setState(() {
+                          ToLanguage = value!;
+                          translatext(InputTextController!.text);
+                        });
+                      },
+                      onPressedClearButton: ClearOnPress,
+                      onPressedCopyButton: () async {
+                        await Clipboard.setData(ClipboardData(text: OutputTextController.text));
+                        // copied successfully
+                      },
+                      onPressedToSpeechButton: () async {_speak(OutputTextController!.text);},
                     ),
                     new TranslateOutText(
                       controller : OutputTextController,

@@ -13,7 +13,14 @@
     <!-- The INTERNET permission is required for development. Specifically,
      flutter needs it to communicate with the running application
      to allow setting breakpoints, to provide hot reload, etc. -->
-   <application
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
+    <application
         android:label="mobile_app_translate"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

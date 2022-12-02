@@ -22,6 +22,7 @@ class _MyHomePageState extends State<MyHomePage> {
   SpeechToText _speech = SpeechToText();
   bool _isListening = false;
 
+  late TranslateForm _TranslateForm;
   @override
   void initState() {
     FlutterMobileVision.start().then((value) {
@@ -99,7 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            new TranslateForm(InputTextController: InputTextController , ),
+            _TranslateForm = new TranslateForm(InputTextController: InputTextController , ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               mainAxisSize: MainAxisSize.max,

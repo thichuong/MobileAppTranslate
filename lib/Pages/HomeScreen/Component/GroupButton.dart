@@ -11,6 +11,7 @@ class GroupButton extends StatelessWidget {
     this.selectedLanguage,
     this.onPressedClearButton,
     this.onPressedCopyButton,
+    this.onPressedToSpeechButton,
     dropdownButtonLanguage,
     ClearButton,
     CopyButton,
@@ -20,11 +21,12 @@ class GroupButton extends StatelessWidget {
   final String? selectedLanguage;
   final VoidCallback? onPressedClearButton;
   final VoidCallback? onPressedCopyButton;
+  final VoidCallback? onPressedToSpeechButton;
 
   DropdownButtonLanguage? dropdownButtonLanguage;
   TextButton? ClearButton;
   TextButton? CopyButton;
-
+  TextButton? ToSpeechButton;
   @override
   Widget build(BuildContext context) {
     Color colorButton = Colors.blueAccent;
@@ -49,7 +51,14 @@ class GroupButton extends StatelessWidget {
       label: Text('', style: TextStyle(fontSize: 28)),
       onPressed: onPressedCopyButton,
     );
-
+    TextButton ToSpeechButton = TextButton.icon(
+      style: TextButton.styleFrom(
+        primary: colorButton, // text + icon color
+      ),
+      icon: Icon(Icons.volume_up_outlined, size: 32),
+      label: Text('', style: TextStyle(fontSize: 28)),
+      onPressed: onPressedToSpeechButton,
+    );
 
     return Column(
       children: <Widget>[
@@ -70,6 +79,7 @@ class GroupButton extends StatelessWidget {
                       children: <Widget>[
                         ClearButton,
                         CopyButton,
+                        ToSpeechButton,
                       ]
                   ),
                   alignment: Alignment.bottomLeft,
