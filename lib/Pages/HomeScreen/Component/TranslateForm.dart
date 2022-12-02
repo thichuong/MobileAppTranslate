@@ -55,8 +55,8 @@ class _TranslateForm extends State<TranslateForm> {
   void ClearOnPress()
   {
     setState(()  {
-      InputTextController!.text = '';
       OutputTextController.text = '';
+      InputTextController!.text = '';
     });
   }
 
@@ -96,6 +96,7 @@ class _TranslateForm extends State<TranslateForm> {
 
   @override
   Widget build(BuildContext context) {
+    //Lay su kien thay doi chuoi text
     InputTextController!.addListener(() {
       translatext(InputTextController!.text);
     });
@@ -108,44 +109,60 @@ class _TranslateForm extends State<TranslateForm> {
         new Container(
           padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
           child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new GroupButton(
-                    selectedLanguage : FromLanguage,
-                    onChangedLanguage: (value)
-                    {
-                      setState(() {
-                        FromLanguage = value!;
-                        translatext(InputTextController!.text);
-                      });
-                    },
-                    onPressedClearButton: ClearOnPress,
-                    onPressedCopyButton: () async {
-                      await Clipboard.setData(ClipboardData(text: OutputTextController.text));
-                      // copied successfully
-                    },
-                  ),
-                  new InputField(
-                    controller : InputTextController,
-                    onChanged : (text) {
-                      //translatext(text);
-                    },
-                  ),
-                  new DropdownButtonLanguage(
-                    selectedValue : ToLanguage,
-                    onChanged: (value)
-                    {
-                      setState(() {
-                        ToLanguage = value!;
-                        translatext(InputTextController!.text);
-                      });
-                    },
-                  ),
-                  new TranslateOutText(
-                    controller : OutputTextController,
-                  ),
-                ],
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              new Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    new GroupButton(
+                      selectedLanguage : FromLanguage,
+                      onChangedLanguage: (value)
+                      {
+                        setState(() {
+                          FromLanguage = value!;
+                          translatext(InputTextController!.text);
+                        });
+                      },
+                      onPressedClearButton: ClearOnPress,
+                      onPressedCopyButton: () async {
+                        await Clipboard.setData(ClipboardData(text: OutputTextController.text));
+                        // copied successfully
+                      },
+                    ),
+                    new InputField(
+                      controller : InputTextController,
+                      onChanged : (text) {
+                        //translatext(text);
+                      },
+                    ),
+                  ],
+                ),
               ),
+              new Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    new DropdownButtonLanguage(
+                      selectedValue : ToLanguage,
+                      onChanged: (value)
+                      {
+                        setState(() {
+                          ToLanguage = value!;
+                          translatext(InputTextController!.text);
+                        });
+                      },
+                    ),
+                    new TranslateOutText(
+                      controller : OutputTextController,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           height: 500,
         ),
       ],
