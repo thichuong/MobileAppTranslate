@@ -5,9 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'Button/InputField.dart';
 import 'Button/TranslateOutText.dart';
-import 'Button/Dropdown_button_language.dart';
 import '/Pages/HomeScreen/Component/GroupButton.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:flutter_mobile_vision_2/flutter_mobile_vision_2.dart';
 
@@ -99,6 +97,30 @@ class _TranslateForm extends State<TranslateForm> {
 
     //setcompletionHandler
     TextToSpeech.instance.setcompletionHandler(() { isSpeak = false; });
+    OutlinedButton ClearButton = OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        primary: Colors.blueAccent, // text + icon color
+        foregroundColor: Colors.blueAccent,
+        side: BorderSide(color: Colors.blueAccent),
+      ),
+      child: Text('Clear', style: TextStyle(fontSize: 13)),
+      onPressed: ClearOnPress,
+    );
+    OutlinedButton PastButton = OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        primary: Colors.blueAccent, // text + icon color
+        foregroundColor: Colors.blueAccent,
+        side: BorderSide(color: Colors.blueAccent),
+      ),
+      child: Text('Past', style: TextStyle(fontSize: 13)),
+      onPressed: () async {
+        ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+        setState(() {
+          InputTextController!.text = data!.text!;
+        });
+        // copied successfully
+      },
+    );
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,21 +164,19 @@ class _TranslateForm extends State<TranslateForm> {
               ),
               new Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    PastButton,
+                    ClearButton,
+                  ],
+                ),
+              ),
+              new Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-/*
-                    new DropdownButtonLanguage(
-                      selectedValue : ToLanguage,
-                      onChanged: (value)
-                      {
-                        setState(() {
-                          ToLanguage = value!;
-                          translatext(InputTextController!.text);
-                        });
-                      },
-                    ),
-*/
                     new GroupButton(
                       selectedLanguage : ToLanguage,
                       onChangedLanguage: (value)

@@ -77,7 +77,7 @@ class GroupButton extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        ClearButton,
+                        //ClearButton,
                         CopyButton,
                         ToSpeechButton,
                       ]

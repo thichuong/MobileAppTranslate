@@ -40,6 +40,7 @@ class DropdownButtonLanguage extends StatelessWidget {
                   // After selecting the desired option,it will
                   // change button value to selected value
                   onChanged: onChanged,
+                  buttonWidth: 180,
                 ),
               ]
           ),

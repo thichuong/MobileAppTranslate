@@ -37,7 +37,7 @@ class TranslateOutText extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(0.0),
           alignment: Alignment.topLeft,
-          height: 180,
+          height: 170,
         ),
       ],
     );
