@@ -25,9 +25,28 @@ class TextToSpeech {
 
   void setLang(String lang) async
   {
+    switch(lang) {
+      case 'en': {
+        langCode = "en-US";
+      }
+      break;
+
+      case 'vi': {
+        langCode = "vi-VN";
+        print('vi-VN');
+      }
+      break;
+
+      default: {
+        langCode = "en-US";
+      }
+      break;
+    }
+
     await flutterTts.setLanguage(lang);
   }
   void speak(String text) async {
+
     initSetting();
     await flutterTts.speak(text);
   }

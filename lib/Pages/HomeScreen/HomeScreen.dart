@@ -79,7 +79,6 @@ class _MyHomePageState extends State<MyHomePage> {
             InputTextController.text = text_temp + val.recognizedWords;
           }),
         );
-        print(available);
       }
     } else {
       setState(() => _isListening = false);

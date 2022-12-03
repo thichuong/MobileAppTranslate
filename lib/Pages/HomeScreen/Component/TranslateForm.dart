@@ -72,11 +72,12 @@ class _TranslateForm extends State<TranslateForm> {
     });
   }
 
-  void _speak(String text)
+  void _speak(String text,String lang)
   {
     if(!isSpeak)
       {
         isSpeak = true;
+        TextToSpeech.instance.setLang(lang);
         TextToSpeech.instance.speak(text);
       }
     else
@@ -151,7 +152,7 @@ class _TranslateForm extends State<TranslateForm> {
                         await Clipboard.setData(ClipboardData(text: InputTextController!.text));
                         // copied successfully
                       },
-                      onPressedToSpeechButton: () async {_speak(InputTextController!.text);},
+                      onPressedToSpeechButton: () async {_speak(InputTextController!.text,FromLanguage);},
                     ),
                     new InputField(
                       controller : InputTextController,
@@ -191,7 +192,7 @@ class _TranslateForm extends State<TranslateForm> {
                         await Clipboard.setData(ClipboardData(text: OutputTextController.text));
                         // copied successfully
                       },
-                      onPressedToSpeechButton: () async {_speak(OutputTextController!.text);},
+                      onPressedToSpeechButton: () async {_speak(OutputTextController!.text,ToLanguage);},
                     ),
                     new TranslateOutText(
                       controller : OutputTextController,
