@@ -112,7 +112,7 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Widget? _floatingActionButton() {
-    if (_mode == ScreenMode.gallery) return null;
+    if (_mode == ScreenMode.gallery && _image == null) return null;
     if (cameras.length == 1) return null;
     return SizedBox(
         height: 70.0,
@@ -231,6 +231,8 @@ class _CameraViewState extends State<CameraView> {
           child: Text(
               '${_path == null ? '' : 'Image path: $_path'}\n\n${widget.text ?? ''}'),
         ),
+
+
     ]);
   }
 

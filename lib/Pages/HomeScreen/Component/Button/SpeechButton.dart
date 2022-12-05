@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:avatar_glow/avatar_glow.dart';
-import '/Translation/Translation.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 
-import '/Translation/language.dart';
+import '/Model/SpeechAndText/SpeechToText.dart';
 
 class SpeechButton extends StatelessWidget {
-  SpeechButton({this.onPressedSpeedButton, this.isListening});
+  SpeechButton( {
+    this.onPressedSpeedButton,
+    this.isListening,
+  });
   final VoidCallback? onPressedSpeedButton;
   final bool? isListening;
+
+
+  final SpeechTotext _speech = SpeechTotext.instance;
+
 
   @override
   Widget build(BuildContext context) {

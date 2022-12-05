@@ -9,6 +9,7 @@ class Language {
   String toString() => name;
 
 
+
 }
 
 /// Language list containing all languages supported by Google Translate API
@@ -121,7 +122,9 @@ class LanguageList {
     'yo': 'Yoruba',
     'zu': 'Zulu'
   };
-
+  LanguageList._();
+  /// the one and only instance of this singleton
+  static final instance = LanguageList._();
 
   Language operator [](String code) {
     code = code.toLowerCase();

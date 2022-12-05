@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '/Translation/Translation.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-import '/Translation/language.dart';
+import '/Model/Translation/language.dart';
 
 class DropdownButtonLanguage extends StatelessWidget {
   DropdownButtonLanguage({

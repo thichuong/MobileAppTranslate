@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import '/Translation/Translation.dart';
-import '/SpeechAndText/TextToSpeech.dart';
+import '/Model/Translation/Translation.dart';
+import '/Model/SpeechAndText/TextToSpeech.dart';
 import 'package:flutter/services.dart';
 
 import 'Button/InputField.dart';
 import 'Button/TranslateOutText.dart';
 import '/Pages/HomeScreen/Component/GroupButton.dart';
 import '/Model/SourceLang.dart';
-
-import 'package:flutter_mobile_vision_2/flutter_mobile_vision_2.dart';
 
 class TranslateForm extends StatefulWidget {
   const TranslateForm({Key? key,required this.InputTextController}
@@ -29,12 +27,14 @@ class _TranslateForm extends State<TranslateForm> {
 
   @override
   void initState() {
-    FlutterMobileVision.start().then((value) {
-      isInitilized = true;
-    });
+
     InputTextController!.addListener(() {
       translatext(InputTextController!.text);
     });
+    TextToSpeech.instance.setLang(FromLanguage);
+    SourceLang.instance.languageFrom = FromLanguage;
+    SourceLang.instance.languageTo = ToLanguage;
+
     super.initState();
 
   }
@@ -77,13 +77,17 @@ class _TranslateForm extends State<TranslateForm> {
   {
     if(!isSpeak)
       {
-        isSpeak = true;
+        setState(() {
+          isSpeak = true;
+        });
         TextToSpeech.instance.setLang(lang);
         TextToSpeech.instance.speak(text);
       }
     else
       {
-        isSpeak = false;
+        setState(() {
+          isSpeak = false;
+        });
         TextToSpeech.instance.stop();
       }
   }
@@ -98,7 +102,11 @@ class _TranslateForm extends State<TranslateForm> {
   Widget build(BuildContext context) {
 
     //setcompletionHandler
-    TextToSpeech.instance.setcompletionHandler(() { isSpeak = false; });
+    TextToSpeech.instance.setcompletionHandler(()
+    {
+      setState(()
+      {isSpeak = false;});
+    });
     OutlinedButton ClearButton = OutlinedButton(
       style: OutlinedButton.styleFrom(
         primary: Colors.blueAccent, // text + icon color
@@ -149,12 +157,12 @@ class _TranslateForm extends State<TranslateForm> {
                           translatext(InputTextController!.text);
                         });
                       },
-                      onPressedClearButton: ClearOnPress,
                       onPressedCopyButton: () async {
                         await Clipboard.setData(ClipboardData(text: InputTextController!.text));
                         // copied successfully
                       },
                       onPressedToSpeechButton: () async {_speak(InputTextController!.text,FromLanguage);},
+                      isSpeak: isSpeak,
                     ),
                     new InputField(
                       controller : InputTextController,
@@ -190,12 +198,12 @@ class _TranslateForm extends State<TranslateForm> {
                           translatext(InputTextController!.text);
                         });
                       },
-                      onPressedClearButton: ClearOnPress,
                       onPressedCopyButton: () async {
                         await Clipboard.setData(ClipboardData(text: OutputTextController.text));
                         // copied successfully
                       },
                       onPressedToSpeechButton: () async {_speak(OutputTextController!.text,ToLanguage);},
+                      isSpeak: isSpeak,
                     ),
                     new TranslateOutText(
                       controller : OutputTextController,

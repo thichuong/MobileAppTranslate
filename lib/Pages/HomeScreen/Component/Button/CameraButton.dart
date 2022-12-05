@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import '/Translation/Translation.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 
-import '/Translation/language.dart';
 
 class CameraButton extends StatelessWidget {
   const CameraButton({this.onPressed});

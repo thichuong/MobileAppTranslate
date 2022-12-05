@@ -36,8 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_translate: ^4.0.3
   dropdown_button2: ^1.8.9
-  flutter_mobile_vision_2: ^0.1.13
-  speech_to_text: ^6.1.0
+  speech_to_text: ^6.1.1
   avatar_glow: ^2.0.2
   flutter_tts: ^3.6.2
   camera: ^0.10.0+4

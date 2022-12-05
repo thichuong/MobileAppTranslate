@@ -4,6 +4,7 @@ import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 
 import '/Pages/Vision_detector_screen/camera_view.dart';
 import '/Pages/Vision_detector_screen/text_detector_painter.dart';
+import '/Model/SourceLang.dart';
 
 class TextRecognizerView extends StatefulWidget {
   @override
@@ -14,7 +15,8 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
   final TextRecognizer _textRecognizer =
       TextRecognizer(script: TextRecognitionScript.chinese);
   final _onDeviceTranslator = OnDeviceTranslator(
-      sourceLanguage: TranslateLanguage.english, targetLanguage: TranslateLanguage.vietnamese);
+      sourceLanguage: SourceLang.instance.TranslateLanguageFrom,
+      targetLanguage: SourceLang.instance.TranslateLanguageTo);
   bool _canProcess = true;
   bool _isBusy = false;
   CustomPaint? _customPaint;

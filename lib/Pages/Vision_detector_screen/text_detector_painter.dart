@@ -44,7 +44,7 @@ class TextRecognizerPainter extends CustomPainter {
       final top = translateY(
           textBlock.boundingBox.top, rotation, size, absoluteImageSize);
       final right = translateX(
-          textBlock.boundingBox.right*1.3, rotation, size, absoluteImageSize);
+          textBlock.boundingBox.right, rotation, size, absoluteImageSize);
       final bottom = translateY(
           textBlock.boundingBox.bottom, rotation, size, absoluteImageSize);
 

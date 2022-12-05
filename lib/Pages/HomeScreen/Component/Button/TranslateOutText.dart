@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/Translation/Translation.dart';
+import '/Model/Translation/Translation.dart';
 
 
 class TranslateOutText extends StatelessWidget {
