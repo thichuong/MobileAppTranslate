@@ -49,12 +49,11 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
     });
     final List<String> listText = <String>[];
     final recognizedText = await _textRecognizer.processImage(inputImage);
-    _result = '';
+    _result = recognizedText.text;
     for (final textBlock in recognizedText.blocks)
       {
         /*var textTemp = await Translation.instance.translate(
             textBlock.text, languagefrom: 'en', languageto: 'vi');*/
-        _result = _result! + textBlock.text + '\n';
         var textTemp = await _onDeviceTranslator.translateText(textBlock.text);
         listText.add('$textTemp');
       }

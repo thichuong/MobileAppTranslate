@@ -118,11 +118,11 @@ class _CameraViewState extends State<CameraView> {
         height: 70.0,
         width: 70.0,
         child: FloatingActionButton(
-          onPressed: _switchLiveCamera,
+          onPressed: _resultLiveCamera,
           child: Icon(
             Platform.isIOS
-                ? Icons.flip_camera_ios_outlined
-                : Icons.flip_camera_android_outlined,
+                ? Icons.camera_alt_outlined
+                : Icons.camera,
             size: 40,
           ),
         ));
@@ -290,7 +290,7 @@ class _CameraViewState extends State<CameraView> {
     _controller = null;
   }
 
-  Future _switchLiveCamera() async {
+  Future _resultLiveCamera() async {
    /* setState(() => _changingCameraLens = true);
     _cameraIndex = (_cameraIndex + 1) % cameras.length;
 
