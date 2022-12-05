@@ -5,6 +5,7 @@ import 'package:flutter_mobile_vision_2/flutter_mobile_vision_2.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '/Pages/HomeScreen/Component/Button/SpeechButton.dart';
 import '/Pages/HomeScreen/Component/Button/CameraButton.dart';
+import '/Pages/Vision_detector_screen/text_detector_view.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -28,6 +29,7 @@ class _MyHomePageState extends State<MyHomePage> {
     FlutterMobileVision.start().then((value) {
       isInitilized = true;
     });
+
     super.initState();
 
   }
@@ -88,7 +90,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -105,7 +106,10 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                new CameraButton(onPressed: _startScan),
+                new CameraButton(onPressed: () async
+                  {InputTextController.text = await  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => TextRecognizerView()));}
+                ),
                 new SpeechButton(
                     onPressedSpeedButton: _listen,
                     isListening: _isListening,

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'Button/InputField.dart';
 import 'Button/TranslateOutText.dart';
 import '/Pages/HomeScreen/Component/GroupButton.dart';
+import '/Model/SourceLang.dart';
 
 import 'package:flutter_mobile_vision_2/flutter_mobile_vision_2.dart';
 
@@ -144,6 +145,7 @@ class _TranslateForm extends State<TranslateForm> {
                       {
                         setState(() {
                           FromLanguage = value!;
+                          SourceLang.instance.languageFrom = FromLanguage;
                           translatext(InputTextController!.text);
                         });
                       },
@@ -184,6 +186,7 @@ class _TranslateForm extends State<TranslateForm> {
                       {
                         setState(() {
                           ToLanguage = value!;
+                          SourceLang.instance.languageTo = ToLanguage;
                           translatext(InputTextController!.text);
                         });
                       },
