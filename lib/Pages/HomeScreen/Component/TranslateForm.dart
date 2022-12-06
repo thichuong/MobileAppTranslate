@@ -107,6 +107,7 @@ class _TranslateForm extends State<TranslateForm> {
       setState(()
       {isSpeak = false;});
     });
+    TextToSpeech.instance.initSetting();
     OutlinedButton ClearButton = OutlinedButton(
       style: OutlinedButton.styleFrom(
         primary: Colors.blueAccent, // text + icon color
@@ -129,6 +130,23 @@ class _TranslateForm extends State<TranslateForm> {
           InputTextController!.text = data!.text!;
         });
         // copied successfully
+      },
+    );
+    OutlinedButton SwapButton = OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        primary: Colors.blueAccent, // text + icon color
+        foregroundColor: Colors.blueAccent,
+        side: BorderSide(color: Colors.blueAccent),
+      ),
+      child: Text('Swap', style: TextStyle(fontSize: 13)),
+      onPressed: () async {
+        FromLanguage = SourceLang.instance.languageIDTo;
+        ToLanguage = SourceLang.instance.languageIDFrom;
+        SourceLang.instance.languageFrom = FromLanguage;
+        SourceLang.instance.languageTo = ToLanguage;
+        setState(() {
+          InputTextController!.text = OutputTextController.text;
+        });
       },
     );
 
@@ -178,6 +196,7 @@ class _TranslateForm extends State<TranslateForm> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
+                    SwapButton,
                     PastButton,
                     ClearButton,
                   ],

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 
 class CameraButton extends StatelessWidget {
-  const CameraButton({this.onPressed});
+  const CameraButton({this.onPressed, this.child});
   final VoidCallback? onPressed;
-
+  final Widget? child;
   Future<Null> _startScan() async {
     String temp = '';
   }
@@ -16,7 +16,7 @@ class CameraButton extends StatelessWidget {
     FloatingActionButton SpeechActionButton = new FloatingActionButton(
       onPressed: onPressed,
       tooltip: 'Increment',
-      child: Icon(Icons.camera_alt),
+      child: child,
     );
 
     return Column(

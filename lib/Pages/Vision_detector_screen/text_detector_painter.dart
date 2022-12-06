@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
-import '/Pages/Vision_detector_screen/coordinates_translator.dart';
+import 'coordinates_translator.dart';
 
 class TextRecognizerPainter extends CustomPainter {
   TextRecognizerPainter(
@@ -30,7 +30,7 @@ class TextRecognizerPainter extends CustomPainter {
       final ParagraphBuilder builder = ParagraphBuilder(
         ParagraphStyle(
             textAlign: TextAlign.left,
-            fontSize: 16,
+            fontSize: 16 ,
             textDirection: TextDirection.ltr,),
       );
       builder.pushStyle(
@@ -48,17 +48,17 @@ class TextRecognizerPainter extends CustomPainter {
       final bottom = translateY(
           textBlock.boundingBox.bottom, rotation, size, absoluteImageSize);
 
-      canvas.drawRect(
+     /* canvas.drawRect(
         Rect.fromLTRB(left, top, right, bottom),
         paint,
-      );
+      );*/
 
       canvas.drawParagraph(
         builder.build()
           ..layout(ParagraphConstraints(
-            width: right - left,
+            width: (right*1.2 - left),
           )),
-        Offset(left, top),
+        Offset(left*0.8, top),
       );
     }
   }

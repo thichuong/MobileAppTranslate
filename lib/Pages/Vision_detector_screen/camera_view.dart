@@ -86,8 +86,11 @@ class _CameraViewState extends State<CameraView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: _mode == ScreenMode.liveFeed,
       appBar: AppBar(
         title: Text(widget.title),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           if (_allowPicker)
             Padding(
@@ -104,6 +107,7 @@ class _CameraViewState extends State<CameraView> {
               ),
             ),
         ],
+
       ),
       body: _body(),
       floatingActionButton: _floatingActionButton(),
@@ -293,12 +297,7 @@ class _CameraViewState extends State<CameraView> {
   }
 
   Future _resultLiveCamera() async {
-   /* setState(() => _changingCameraLens = true);
-    _cameraIndex = (_cameraIndex + 1) % cameras.length;
 
-    await _stopLiveFeed();
-    await _startLiveFeed();
-    setState(() => _changingCameraLens = false);*/
     Navigator.pop(context, widget.result);
   }
 
@@ -353,7 +352,8 @@ class _CameraViewState extends State<CameraView> {
 
     final inputImage =
         InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
-
     widget.onImage(inputImage);
+
+
   }
 }

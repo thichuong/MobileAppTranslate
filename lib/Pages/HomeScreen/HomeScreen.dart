@@ -8,6 +8,7 @@ import '/Model/SourceLang.dart';
 import '/Pages/HomeScreen/Component/Button/SpeechButton.dart';
 import '/Pages/HomeScreen/Component/Button/CameraButton.dart';
 import '/Pages/Vision_detector_screen/text_detector_view.dart';
+import '/Pages/Vision_detector_screen/object_detector_view.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -149,13 +150,21 @@ class _MyHomePageState extends State<MyHomePage> {
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                new CameraButton(onPressed: () async
-                  {InputTextController.text = await  Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => TextRecognizerView()));}
+                new CameraButton(
+                  onPressed: () async
+                            {InputTextController.text = await  Navigator.push(
+                                context, MaterialPageRoute(builder: (context) => TextRecognizerView()));},
+                  child: Icon(Icons.camera_alt),
                 ),
                 new SpeechButton(
                     onPressedSpeedButton: _listen,
                     isListening: speech.isListening,
+                ),
+                new CameraButton(
+                  onPressed: () async
+                              {InputTextController.text = await  Navigator.push(
+                                  context, MaterialPageRoute(builder: (context) => ObjectDetectorView()));},
+                  child: Icon(Icons.document_scanner),
                 ),
               ],
             ),
