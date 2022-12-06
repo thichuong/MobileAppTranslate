@@ -12,22 +12,18 @@ class SpeechButton extends StatelessWidget {
   final bool? isListening;
 
 
-  final SpeechTotext _speech = SpeechTotext.instance;
-
-
   @override
   Widget build(BuildContext context) {
-    Color colorButton = Colors.blueAccent;
     AvatarGlow avatarGlow = new AvatarGlow(
       animate: isListening!,
       glowColor: Theme.of(context).primaryColor,
       endRadius: 50.0,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 1000),
       repeatPauseDuration: const Duration(milliseconds: 100),
       repeat: true,
       child: FloatingActionButton(
         onPressed: onPressedSpeedButton,
-        child: Icon(isListening! ? Icons.mic : Icons.mic_none),
+        child: Icon(isListening! ? Icons.square : Icons.mic),
       ),
     );
     return Column(

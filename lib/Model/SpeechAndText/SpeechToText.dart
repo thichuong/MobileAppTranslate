@@ -9,7 +9,7 @@ class SpeechTotext {
   static final instance = SpeechTotext._();
   late void Function() _setState;
 
-  set setState(Function() setState) =>{ this._setState = setState! };
+  set setState(Function() setState) =>{ this._setState = setState };
 
   bool _hasSpeech = false;
   bool _logEvents = false;
@@ -28,6 +28,7 @@ class SpeechTotext {
 
   SpeechToText get speechToText => this.speech;
   bool get isListening => this.speech.isListening;
+
   Future<void> initSpeechState() async {
     _logEvent('Initialize');
     try {
@@ -69,7 +70,6 @@ class SpeechTotext {
       pauseFor: Duration(seconds: 3),
       partialResults: true,
       localeId: SourceLang.instance.languageIDFrom,
-      onSoundLevelChange: soundLevelListener,
       cancelOnError: true,
       listenMode: ListenMode.confirmation,
       onDevice: _onDevice,
@@ -105,14 +105,6 @@ class SpeechTotext {
     });*/
   }
 
-  void soundLevelListener(double level) {
-    /*minSoundLevel = min(minSoundLevel, level);
-    maxSoundLevel = max(maxSoundLevel, level);
-    // _logEvent('sound level $level: $minSoundLevel - $maxSoundLevel ');
-    setState(() {
-      this.level = level;
-    });*/
-  }
 
   void errorListener(SpeechRecognitionError error) {
     _logEvent(
@@ -130,14 +122,6 @@ class SpeechTotext {
     /*setState(() {
       lastStatus = '$status';
     });*/
-  }
-
-  void _switchLang(selectedVal) {
-    /*setState(() {
-      _currentLocaleId = selectedVal;
-    });*/
-    _currentLocaleId = selectedVal;
-    print(selectedVal);
   }
 
   void _logEvent(String eventDescription) {
