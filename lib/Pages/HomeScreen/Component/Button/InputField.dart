@@ -26,7 +26,7 @@ class InputField extends StatelessWidget {
                   onChanged: this.onChanged,
                   autofocus: true,
                   style: new TextStyle(fontSize:18.0,
-                      color: const Color(0xFF000000),
+                      //color: const Color(0xFF000000),
                       fontWeight: FontWeight.w200,
                       fontFamily: "Roboto"),
                   maxLines: null,

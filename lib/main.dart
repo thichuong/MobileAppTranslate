@@ -34,6 +34,15 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blue,
+        primaryColor: Colors.blue[300],
+        accentColor: Colors.blueAccent,
+        focusColor: Colors.white,
+        /* dark theme settings */
+      ),
+      themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'Translate'),
       debugShowCheckedModeBanner: false,
     );

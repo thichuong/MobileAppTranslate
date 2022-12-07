@@ -89,7 +89,7 @@ class _CameraViewState extends State<CameraView> {
       extendBodyBehindAppBar: _mode == ScreenMode.liveFeed,
       appBar: AppBar(
         title: Text(widget.title),
-        backgroundColor: Colors.transparent,
+        backgroundColor: _mode == ScreenMode.liveFeed ? Colors.transparent : null,
         elevation: 0,
         actions: [
           if (_allowPicker)
@@ -235,6 +235,12 @@ class _CameraViewState extends State<CameraView> {
           child: Text(
               '${_path == null ? '' : 'Image path: $_path'}\n\n${widget.text ?? ''}'),
         ),
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+            '\n\n'),
+      ),
+
 
 
     ]);

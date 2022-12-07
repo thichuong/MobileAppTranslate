@@ -152,7 +152,7 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
       String text = 'Objects found: ${objects.length}\n\n';
       for (final object in objects) {
         text +=
-            'Object:  trackingId: ${object.trackingId} - ${object.labels.map((e) => e.text)}\n\n';
+            'Object:  ${object.labels.map((e) => e.text)}\n';
       }
       _text = text;
       // TODO: set _customPaint to draw boundingRect on top of image

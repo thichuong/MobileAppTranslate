@@ -28,24 +28,25 @@ class GroupButton extends StatelessWidget {
       selectedValue : selectedLanguage,
       onChanged: onChangedLanguage,
     );
-    TextButton CopyButton =  TextButton.icon(
+    TextButton CopyButton =  TextButton(
       style: TextButton.styleFrom(
-        primary: colorButton, // text + icon color
+        textStyle: const TextStyle(fontSize: 20),
       ),
-      icon: Icon(Icons.copy_all_outlined, size: 32),
-      label: Text('', style: TextStyle(fontSize: 28)),
+      child: Icon(Icons.copy_all_outlined,
+          size: 32,
+          color: colorButton),
       onPressed: onPressedCopyButton,
     );
-    TextButton ToSpeechButton = TextButton.icon(
+    TextButton ToSpeechButton = TextButton(
       style: TextButton.styleFrom(
-        primary: colorButton, // text + icon color
+        textStyle: const TextStyle(fontSize: 20),
       ),
-      icon: Icon(
+      child: Icon(
           isSpeak != true
           ? Icons.volume_up_outlined
           : Icons.square,
-          size: 32),
-      label: Text('', style: TextStyle(fontSize: 28)),
+          size: 32,
+          color: colorButton),
       onPressed: onPressedToSpeechButton,
     );
 
@@ -54,7 +55,7 @@ class GroupButton extends StatelessWidget {
         new Container(
           child:
           new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
