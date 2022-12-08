@@ -15,7 +15,6 @@ class Language {
 /// Language list containing all languages supported by Google Translate API
 class LanguageList {
   static final _langs = {
-    'auto': 'Automatic',
     'af': 'Afrikaans',
     'sq': 'Albanian',
     'am': 'Amharic',
@@ -30,8 +29,8 @@ class LanguageList {
     'ca': 'Catalan',
     'ceb': 'Cebuano',
     'ny': 'Chichewa',
-    'zh-cn': 'Chinese Simplified',
-    'zh-tw': 'Chinese Traditional',
+    'zh-cn': 'Chinese cn',
+    'zh-tw': 'Chinese tw',
     'co': 'Corsican',
     'hr': 'Croatian',
     'cs': 'Czech',
@@ -67,7 +66,7 @@ class LanguageList {
     'kk': 'Kazakh',
     'km': 'Khmer',
     'ko': 'Korean',
-    'ku': 'Kurdish (Kurmanji)',
+    'ku': 'Kurdish',
     'ky': 'Kyrgyz',
     'lo': 'Lao',
     'la': 'Latin',
@@ -82,7 +81,7 @@ class LanguageList {
     'mi': 'Maori',
     'mr': 'Marathi',
     'mn': 'Mongolian',
-    'my': 'Myanmar (Burmese)',
+    'my': 'Myanmar',
     'ne': 'Nepali',
     'no': 'Norwegian',
     'ps': 'Pashto',

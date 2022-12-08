@@ -143,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -155,9 +155,9 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 new CameraButton(
                   onPressed: () async
-                            {InputTextController.text = await  Navigator.push(
-                                context, MaterialPageRoute(builder: (context) => TextRecognizerView()));},
-                  child: Icon(Icons.camera_alt),
+                  {InputTextController.text = await  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => ObjectDetectorView()));},
+                  child: Icon(Icons.document_scanner, size: 32),
                 ),
                 new SpeechButton(
                     onPressedSpeedButton: _listen,
@@ -165,17 +165,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 new CameraButton(
                   onPressed: () async
-                              {InputTextController.text = await  Navigator.push(
-                                  context, MaterialPageRoute(builder: (context) => ObjectDetectorView()));},
-                  child: Icon(Icons.document_scanner),
+                  {InputTextController.text = await  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => TextRecognizerView()));},
+                  child: Icon(Icons.camera_alt, size: 32),
                 ),
               ],
             ),
           ],
         ),
       ),
-
+      extendBody: true,
       resizeToAvoidBottomInset: false,
+
     );
   }
 }

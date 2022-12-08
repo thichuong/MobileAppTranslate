@@ -24,14 +24,18 @@ class _TranslateForm extends State<TranslateForm> {
   var ToLanguage = 'vi';
   bool isSpeak = false;
   bool isInitilized = false;
-
+  Color foregroundColor = Colors.white;
+  Color colorButton = Colors.blueAccent;
   @override
   void initState() {
 
     InputTextController!.addListener(() {
       translatext(InputTextController!.text);
     });
+    TextToSpeech.instance.initSetting();
     TextToSpeech.instance.setLang(FromLanguage);
+    TextToSpeech.instance.setLang(ToLanguage);
+
     SourceLang.instance.languageFrom = FromLanguage;
     SourceLang.instance.languageTo = ToLanguage;
 
@@ -107,23 +111,26 @@ class _TranslateForm extends State<TranslateForm> {
       setState(()
       {isSpeak = false;});
     });
-    TextToSpeech.instance.initSetting();
-    OutlinedButton ClearButton = OutlinedButton(
-      style: OutlinedButton.styleFrom(
+    //set Button
+    double fontSizeButton = 16;
+    ElevatedButton ClearButton = ElevatedButton(
+      style: ElevatedButton.styleFrom(
         primary: Colors.blueAccent, // text + icon color
-        foregroundColor: Colors.blueAccent,
+        foregroundColor: foregroundColor,
         side: BorderSide(color: Colors.blueAccent),
+        backgroundColor: colorButton,
       ),
-      child: Text('Clear', style: TextStyle(fontSize: 13)),
+      child: Text('Clear', style: TextStyle(fontSize: fontSizeButton)),
       onPressed: ClearOnPress,
     );
-    OutlinedButton PastButton = OutlinedButton(
-      style: OutlinedButton.styleFrom(
+    ElevatedButton PastButton = ElevatedButton(
+      style: ElevatedButton.styleFrom(
         primary: Colors.blueAccent, // text + icon color
-        foregroundColor: Colors.blueAccent,
+        foregroundColor: foregroundColor,
         side: BorderSide(color: Colors.blueAccent),
+        backgroundColor: colorButton,
       ),
-      child: Text('Past', style: TextStyle(fontSize: 13)),
+      child: Text('Past', style: TextStyle(fontSize: fontSizeButton)),
       onPressed: () async {
         ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
         setState(() {
@@ -132,13 +139,14 @@ class _TranslateForm extends State<TranslateForm> {
         // copied successfully
       },
     );
-    OutlinedButton SwapButton = OutlinedButton(
-      style: OutlinedButton.styleFrom(
+    ElevatedButton SwapButton = ElevatedButton(
+      style: ElevatedButton.styleFrom(
         primary: Colors.blueAccent, // text + icon color
-        foregroundColor: Colors.blueAccent,
+        foregroundColor: foregroundColor,
         side: BorderSide(color: Colors.blueAccent),
+        backgroundColor: colorButton,
       ),
-      child: Text('Swap', style: TextStyle(fontSize: 13)),
+      child: Text('Swap', style: TextStyle(fontSize: fontSizeButton)),
       onPressed: () async {
         FromLanguage = SourceLang.instance.languageIDTo;
         ToLanguage = SourceLang.instance.languageIDFrom;
@@ -150,91 +158,89 @@ class _TranslateForm extends State<TranslateForm> {
       },
     );
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        new Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              new Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    new GroupButton(
-                      selectedLanguage : FromLanguage,
-                      onChangedLanguage: (value)
-                      {
-                        setState(() {
-                          FromLanguage = value!;
-                          SourceLang.instance.languageFrom = FromLanguage;
-                          translatext(InputTextController!.text);
-                        });
-                      },
-                      onPressedCopyButton: () async {
-                        await Clipboard.setData(ClipboardData(text: InputTextController!.text));
-                        // copied successfully
-                      },
-                      onPressedToSpeechButton: () async {_speak(InputTextController!.text,FromLanguage);},
-                      isSpeak: isSpeak,
-                    ),
-                    new InputField(
-                      controller : InputTextController,
-                      /*onChanged : (text) {
+    return ListView(
+        shrinkWrap: true,
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: new Container(
+              padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  new GroupButton(
+                    selectedLanguage : FromLanguage,
+                    onChangedLanguage: (value)
+                    {
+                      setState(() {
+                        FromLanguage = value!;
+                        SourceLang.instance.languageFrom = FromLanguage;
+                        translatext(InputTextController!.text);
+                      });
+                    },
+                    onPressedCopyButton: () async {
+                      await Clipboard.setData(ClipboardData(text: InputTextController!.text));
+                      // copied successfully
+                    },
+                    onPressedToSpeechButton: () async {_speak(InputTextController!.text,FromLanguage);},
+                    isSpeak: isSpeak,
+                  ),
+                  new InputField(
+                    controller : InputTextController,
+                    /*onChanged : (text) {
                         //translatext(text);
                       },*/
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              new Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    SwapButton,
-                    PastButton,
-                    ClearButton,
-                  ],
-                ),
-              ),
-              new Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    new GroupButton(
-                      selectedLanguage : ToLanguage,
-                      onChangedLanguage: (value)
-                      {
-                        setState(() {
-                          ToLanguage = value!;
-                          SourceLang.instance.languageTo = ToLanguage;
-                          translatext(InputTextController!.text);
-                        });
-                      },
-                      onPressedCopyButton: () async {
-                        await Clipboard.setData(ClipboardData(text: OutputTextController.text));
-                        // copied successfully
-                      },
-                      onPressedToSpeechButton: () async {_speak(OutputTextController!.text,ToLanguage);},
-                      isSpeak: isSpeak,
-                    ),
-                    new TranslateOutText(
-                      controller : OutputTextController,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-          height: 500,
-        ),
-      ],
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16,vertical: 5.0),
+            child: new Container(
+              padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  SwapButton,
+                  PastButton,
+                  ClearButton,
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: new Container(
+              padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  new GroupButton(
+                    selectedLanguage : ToLanguage,
+                    onChangedLanguage: (value)
+                    {
+                      setState(() {
+                        ToLanguage = value!;
+                        SourceLang.instance.languageTo = ToLanguage;
+                        translatext(InputTextController!.text);
+                      });
+                    },
+                    onPressedCopyButton: () async {
+                      await Clipboard.setData(ClipboardData(text: OutputTextController.text));
+                      // copied successfully
+                    },
+                    onPressedToSpeechButton: () async {_speak(OutputTextController!.text,ToLanguage);},
+                    isSpeak: isSpeak,
+                  ),
+                  new TranslateOutText(
+                    controller : OutputTextController,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ]
     );
-  }
+    }
 }

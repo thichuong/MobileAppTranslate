@@ -21,26 +21,17 @@ class SpeechButton extends StatelessWidget {
       duration: const Duration(milliseconds: 1000),
       repeatPauseDuration: const Duration(milliseconds: 100),
       repeat: true,
-      child: FloatingActionButton(
-        onPressed: onPressedSpeedButton,
-        child: Icon(isListening! ? Icons.square : Icons.mic),
+      child:
+        SizedBox(
+          height: 70.0,
+          width: 70.0,
+          child:  FloatingActionButton(
+                onPressed: onPressedSpeedButton,
+                child: Icon(isListening! ? Icons.square : Icons.mic_sharp,
+                size: 32),
       ),
+       )
     );
-    return Column(
-      children: <Widget>[
-        new Container(
-          child:
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              avatarGlow,
-            ],
-          ),
-          alignment: Alignment.center,
-        ),
-      ],
-    );
+    return avatarGlow;
   }
 }

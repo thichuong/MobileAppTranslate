@@ -22,40 +22,39 @@ class GroupButton extends StatelessWidget {
   TextButton? ToSpeechButton;
   @override
   Widget build(BuildContext context) {
-    Color colorButton = Colors.blueAccent;
-
+    Color colorButton = Colors.blueAccent.shade400;
+    double iconSize = 30;
     DropdownButtonLanguage dropdownButtonLanguage = new DropdownButtonLanguage(
       selectedValue : selectedLanguage,
       onChanged: onChangedLanguage,
     );
     TextButton CopyButton =  TextButton(
       style: TextButton.styleFrom(
-        textStyle: const TextStyle(fontSize: 20),
+        textStyle: const TextStyle(fontSize: 10),
       ),
       child: Icon(Icons.copy_all_outlined,
-          size: 32,
+          size: iconSize,
           color: colorButton),
       onPressed: onPressedCopyButton,
+
     );
     TextButton ToSpeechButton = TextButton(
       style: TextButton.styleFrom(
-        textStyle: const TextStyle(fontSize: 20),
+        textStyle: const TextStyle(fontSize: 10),
       ),
       child: Icon(
           isSpeak != true
           ? Icons.volume_up_outlined
           : Icons.square,
-          size: 32,
-          color: colorButton),
+          size: iconSize,
+          color:  colorButton),
       onPressed: onPressedToSpeechButton,
     );
 
-    return Column(
-      children: <Widget>[
-        new Container(
+    return Container(
           child:
           new Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -76,8 +75,6 @@ class GroupButton extends StatelessWidget {
               ],
           ),
           alignment: Alignment.center,
-        ),
-      ],
-    );
+        );
   }
 }
