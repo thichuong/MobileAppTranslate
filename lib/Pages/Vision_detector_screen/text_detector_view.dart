@@ -26,6 +26,7 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
   void dispose() async {
     _canProcess = false;
     _textRecognizer.close();
+    _onDeviceTranslator.close();
     super.dispose();
   }
 

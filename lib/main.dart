@@ -1,7 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-
+import 'package:get/get.dart';
 import '/Pages/HomeScreen/HomeScreen.dart';
 
 List<CameraDescription> cameras = [];
@@ -40,9 +40,9 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.blue[300],
         accentColor: Colors.blueAccent,
         focusColor: Colors.white,
-        /* dark theme settings */
       ),
-      themeMode: ThemeMode.dark,
+
+      themeMode: ThemeMode.system,
       home: const MyHomePage(title: 'Translate'),
       debugShowCheckedModeBanner: false,
     );

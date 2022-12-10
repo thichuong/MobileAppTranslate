@@ -56,9 +56,9 @@ class TextRecognizerPainter extends CustomPainter {
       canvas.drawParagraph(
         builder.build()
           ..layout(ParagraphConstraints(
-            width: (right*1.2 - left),
+            width: (right - left)*1.1,
           )),
-        Offset(left*0.8, top),
+        Offset(left, top),
       );
     }
   }

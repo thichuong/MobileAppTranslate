@@ -9,6 +9,8 @@ import '/Pages/HomeScreen/Component/Button/SpeechButton.dart';
 import '/Pages/HomeScreen/Component/Button/CameraButton.dart';
 import '/Pages/Vision_detector_screen/text_detector_view.dart';
 import '/Pages/Vision_detector_screen/object_detector_view.dart';
+import 'package:get/get.dart';
+import '/Pages/SettingScreen/setting_view.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -140,6 +142,18 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         centerTitle: true,
+        actions: [
+            Padding(
+              padding: EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: () async
+                {InputTextController.text = await  Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => SettingView(title: 'Setting',)));},
+                child: Icon(Icons.account_circle_outlined, size: 32),
+                ),
+              ),
+          ],
+
       ),
       body: Center(
         child: Column(

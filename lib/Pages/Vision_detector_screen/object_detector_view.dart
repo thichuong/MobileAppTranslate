@@ -44,6 +44,8 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
   void dispose() {
     _canProcess = false;
     _objectDetector.close();
+    _onDeviceTranslatorFrom.close();
+    _onDeviceTranslatorTo.close();
     super.dispose();
   }
 

@@ -47,6 +47,8 @@ class _CameraViewState extends State<CameraView> {
 
   @override
   void initState() {
+
+
     super.initState();
 
     _imagePicker = ImagePicker();
@@ -360,6 +362,6 @@ class _CameraViewState extends State<CameraView> {
         InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
     widget.onImage(inputImage);
 
-
+    await Future.delayed(Duration(milliseconds: 500));
   }
 }
