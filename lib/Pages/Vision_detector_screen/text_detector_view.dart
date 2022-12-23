@@ -69,7 +69,6 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
           inputImage.inputImageData!.imageRotation,
           listText);
       _customPaint = await CustomPaint(painter: painter);
-      await Future.delayed(Duration(milliseconds: 500));
 
     } else {
       _text = 'Recognized text:\n\n${recognizedText.text}';
@@ -79,6 +78,7 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
     _isBusy = false;
     if (mounted) {
       setState(() {});
+      await Future.delayed(Duration(milliseconds: 500));
     }
   }
 }

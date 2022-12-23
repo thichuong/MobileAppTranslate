@@ -152,6 +152,7 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
           listTextTo
       );
       _customPaint = await CustomPaint(painter: painter);
+
     } else {
       String text = 'Objects found: ${objects.length}\n\n';
       for (final object in objects) {
@@ -165,7 +166,9 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
     _isBusy = false;
     if (mounted) {
       setState(() {});
+      await Future.delayed(Duration(milliseconds: 500));
     }
+
   }
 
   Future<String> _getModel(String assetPath) async {
