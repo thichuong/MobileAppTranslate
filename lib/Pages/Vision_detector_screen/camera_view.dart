@@ -358,10 +358,9 @@ class _CameraViewState extends State<CameraView> {
       planeData: planeData,
     );
 
-    final inputImage =
+    final inputImage = await
         InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
     widget.onImage(inputImage);
 
-    await Future.delayed(Duration(milliseconds: 500));
   }
 }

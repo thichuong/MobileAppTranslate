@@ -12,6 +12,8 @@ import 'package:path_provider/path_provider.dart';
 import 'camera_view.dart';
 import 'object_detector_painter.dart';
 import '/Model/SourceLang.dart';
+import '/Model/Translation/Translation.dart';
+
 
 class ObjectDetectorView extends StatefulWidget {
   @override
@@ -149,7 +151,7 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
           listTextFrom,
           listTextTo
       );
-      _customPaint = CustomPaint(painter: painter);
+      _customPaint = await CustomPaint(painter: painter);
     } else {
       String text = 'Objects found: ${objects.length}\n\n';
       for (final object in objects) {

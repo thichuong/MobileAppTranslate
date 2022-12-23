@@ -68,7 +68,9 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
           inputImage.inputImageData!.size,
           inputImage.inputImageData!.imageRotation,
           listText);
-      _customPaint = CustomPaint(painter: painter);
+      _customPaint = await CustomPaint(painter: painter);
+      await Future.delayed(Duration(milliseconds: 500));
+
     } else {
       _text = 'Recognized text:\n\n${recognizedText.text}';
       // TODO: set _customPaint to draw boundingRect on top of image
