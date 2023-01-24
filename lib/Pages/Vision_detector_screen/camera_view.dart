@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:camera/camera.dart';
 
 import '/main.dart';
 
@@ -102,9 +103,7 @@ class _CameraViewState extends State<CameraView> {
                 child: Icon(
                   _mode == ScreenMode.liveFeed
                       ? Icons.photo_library_outlined
-                      : (Platform.isIOS
-                          ? Icons.camera_alt_outlined
-                          : Icons.camera),
+                      : Icons.camera,
                 ),
               ),
             ),
@@ -126,9 +125,7 @@ class _CameraViewState extends State<CameraView> {
         child: FloatingActionButton(
           onPressed: _resultLiveCamera,
           child: Icon(
-            Platform.isIOS
-                ? Icons.camera_alt_outlined
-                : Icons.camera,
+            Icons.camera,
             size: 40,
           ),
         ));
@@ -358,7 +355,7 @@ class _CameraViewState extends State<CameraView> {
       planeData: planeData,
     );
 
-    final inputImage = await
+    final inputImage =
         InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
     widget.onImage(inputImage);
 

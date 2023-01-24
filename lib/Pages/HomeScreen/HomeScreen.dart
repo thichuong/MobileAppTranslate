@@ -143,15 +143,17 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         centerTitle: true,
         actions: [
+/*
             Padding(
               padding: EdgeInsets.only(right: 20.0),
               child: GestureDetector(
                 onTap: () async
-                {InputTextController.text = await  Navigator.push(
+                { InputTextController.text = await  Navigator.push(
                     context, MaterialPageRoute(builder: (context) => SettingView(title: 'Setting',)));},
                 child: Icon(Icons.account_circle_outlined, size: 32),
                 ),
               ),
+*/
           ],
 
       ),

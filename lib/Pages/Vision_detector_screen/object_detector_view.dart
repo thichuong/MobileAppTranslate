@@ -81,15 +81,6 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
   void _initializeDetector(DetectionMode mode) async {
     print('Set detector in mode: $mode');
 
-    // uncomment next lines if you want to use the default model
-    //final options = ObjectDetectorOptions(
-    //     mode: mode,
-    //     classifyObjects: true,
-    //     multipleObjects: true);
-    // _objectDetector = ObjectDetector(options: options);
-
-    // uncomment next lines if you want to use a local model
-    // make sure to add tflite model to assets/ml
     final path = 'assets/ml/object_labeler.tflite';
     final modelPath = await _getModel(path);
     final options = LocalObjectDetectorOptions(
@@ -99,20 +90,6 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
       multipleObjects: true,
     );
     _objectDetector = ObjectDetector(options: options);
-
-    // uncomment next lines if you want to use a remote model
-    // make sure to add model to firebase
-    // final modelName = 'bird-classifier';
-    // final response =
-    //     await FirebaseObjectDetectorModelManager().downloadModel(modelName);
-    // print('Downloaded: $response');
-    // final options = FirebaseObjectDetectorOptions(
-    //   mode: mode,
-    //   modelName: modelName,
-    //   classifyObjects: true,
-    //   multipleObjects: true,
-    // );
-    // _objectDetector = ObjectDetector(options: options);
 
     _canProcess = true;
   }
@@ -166,7 +143,7 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
     _isBusy = false;
     if (mounted) {
       setState(() {});
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(Duration(milliseconds: 100));
     }
 
   }
