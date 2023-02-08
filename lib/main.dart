@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         focusColor: Colors.white,
       ),
 
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'Translate'),
       debugShowCheckedModeBanner: false,
     );

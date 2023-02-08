@@ -130,7 +130,7 @@ class _TranslateForm extends State<TranslateForm> {
         side: BorderSide(color: Colors.blueAccent),
         backgroundColor: colorButton,
       ),
-      child: Text('Past', style: TextStyle(fontSize: fontSizeButton)),
+      child: Text('Paste', style: TextStyle(fontSize: fontSizeButton)),
       onPressed: () async {
         ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
         setState(() {

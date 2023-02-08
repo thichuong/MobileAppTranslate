@@ -78,7 +78,7 @@ class _GalleryBodyState extends State<GalleryBody> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
-              '${_path == null ? '' : 'Image path: $_path'}\n\n${widget.text ?? ''}'),
+              '\n${widget.text ?? ''}'),
         ),
       Padding(
         padding: const EdgeInsets.all(16.0),
