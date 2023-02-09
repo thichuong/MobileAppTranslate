@@ -132,11 +132,41 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
 
     } else {
       String text = 'Objects found: ${objects.length}\n\n';
+      int i = 0;
+
       for (final object in objects) {
-        text +=
-            'Object:  ${object.labels.map((e) => e.text)}\n';
+        /*text +=
+            'Object:  ${object.labels.map((e) => _onDeviceTranslatorTo.translateText(e.text))}\n';*/
+        text += '(';
+        for (final Label label in object.labels) {
+          text += '${listTextFrom[i]}';
+          i++;
+          if(object.labels.last != label)
+            text += ', ';
+        }
+        text += ')\n';
       }
+
+      if(listTextTo.isNotEmpty)
+      {
+        text += '\n Translate \n';
+        i = 0;
+        for (final object in objects) {
+
+          text += '(';
+          for (final Label label in object.labels) {
+            text += await Translation.instance.translate(
+                listTextFrom[i], languagefrom: SourceLang.instance.languageIDFrom, languageto: SourceLang.instance.languageIDTo);
+            i++;
+            if(object.labels.last != label)
+              text += ', ';
+          }
+          text += ')\n';
+        }
+      }
+
       _text = text;
+
       // TODO: set _customPaint to draw boundingRect on top of image
       _customPaint = null;
     }

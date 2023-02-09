@@ -5,6 +5,8 @@ import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import '/Pages/Vision_detector_screen/camera_view.dart';
 import '../../Model/Painter/text_detector_painter.dart';
 import '/Model/SourceLang.dart';
+import '/Model/Translation/Translation.dart';
+
 
 class TextRecognizerView extends StatefulWidget {
   @override
@@ -72,6 +74,12 @@ class _TextRecognizerViewState extends State<TextRecognizerView> {
 
     } else {
       _text = 'Recognized text:\n\n${recognizedText.text}';
+      if(listText.isNotEmpty)
+        {
+          _text =_text! + "\n\n";
+          _text =_text! + await Translation.instance.translate(
+              _result!, languagefrom: SourceLang.instance.languageIDFrom, languageto: SourceLang.instance.languageIDTo);
+        }
       // TODO: set _customPaint to draw boundingRect on top of image
       _customPaint = null;
     }
