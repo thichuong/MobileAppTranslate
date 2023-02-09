@@ -3,7 +3,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 
 import '/Pages/Vision_detector_screen/camera_view.dart';
-import '/Pages/Vision_detector_screen/text_detector_painter.dart';
+import '../../Model/Painter/text_detector_painter.dart';
 import '/Model/SourceLang.dart';
 
 class TextRecognizerView extends StatefulWidget {

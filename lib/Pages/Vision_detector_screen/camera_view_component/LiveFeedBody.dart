@@ -3,7 +3,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
-
 import '/main.dart';
 
 class LiveFeedBody extends StatefulWidget {
@@ -180,7 +179,7 @@ class _LiveFeedBodyState extends State<LiveFeedBody> {
 
     final inputImage =
     InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
-    widget.onImage(inputImage);
 
+    widget.onImage(inputImage);
   }
 }

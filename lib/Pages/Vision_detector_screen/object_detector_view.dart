@@ -10,7 +10,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'camera_view.dart';
-import 'object_detector_painter.dart';
+import '../../Model/Painter/object_detector_painter.dart';
 import '/Model/SourceLang.dart';
 import '/Model/Translation/Translation.dart';
 
@@ -143,7 +143,7 @@ class _ObjectDetectorView extends State<ObjectDetectorView> {
     _isBusy = false;
     if (mounted) {
       setState(() {});
-      await Future.delayed(Duration(milliseconds: 100));
+      //await Future.delayed(Duration(milliseconds: 100));
     }
 
   }

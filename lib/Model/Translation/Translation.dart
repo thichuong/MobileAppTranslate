@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:translator/translator.dart';
+import 'package:google_mlkit_translation/google_mlkit_translation.dart';
+import '/Model/SourceLang.dart';
+
 import 'language.dart';
 class Translation
 {
@@ -18,4 +21,25 @@ class Translation
     return translation.text;
   }
 
+}
+
+OnDeviceTranslator GetOnDeviceTranslatorLanguageFromTo()
+{
+  return OnDeviceTranslator(
+      sourceLanguage: SourceLang.instance.TranslateLanguageFrom,
+      targetLanguage: SourceLang.instance.TranslateLanguageTo);
+}
+
+OnDeviceTranslator GetOnDeviceTranslatorLanguageFrom()
+{
+  return OnDeviceTranslator(
+      sourceLanguage: TranslateLanguage.english,
+      targetLanguage: SourceLang.instance.TranslateLanguageFrom);
+}
+
+OnDeviceTranslator GetOnDeviceTranslatorLanguageTo()
+{
+  return OnDeviceTranslator(
+      sourceLanguage: TranslateLanguage.english,
+      targetLanguage: SourceLang.instance.TranslateLanguageTo);
 }

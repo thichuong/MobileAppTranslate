@@ -142,8 +142,8 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         centerTitle: true,
-        actions: [
-/*
+        /*actions: [
+*//*
             Padding(
               padding: EdgeInsets.only(right: 20.0),
               child: GestureDetector(
@@ -153,8 +153,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Icon(Icons.account_circle_outlined, size: 32),
                 ),
               ),
-*/
-          ],
+*//*
+          ],*/
 
       ),
       body: Center(
