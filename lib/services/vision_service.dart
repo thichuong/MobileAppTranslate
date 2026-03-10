@@ -9,10 +9,8 @@ class VisionService extends GetxService {
   Future<void> initObjectDetector() async {
     // Custom model path: assets/ml/object_labeler.tflite
     // Note: The file must exist for this to work. We will add a placeholder or handle the error.
-    final modelPath = 'assets/ml/object_labeler.tflite';
-    final options = LocalObjectDetectorOptions(
+    final options = ObjectDetectorOptions(
       mode: DetectionMode.stream,
-      modelPath: modelPath,
       classifyObjects: true,
       multipleObjects: true,
     );

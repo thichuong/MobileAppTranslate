@@ -26,7 +26,9 @@ class CameraService extends GetxService {
       selectedCamera,
       resolution,
       enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.bgra8888,
+      imageFormatGroup: GetPlatform.isAndroid
+          ? ImageFormatGroup.nv21
+          : ImageFormatGroup.bgra8888,
     );
 
     await controller?.initialize();

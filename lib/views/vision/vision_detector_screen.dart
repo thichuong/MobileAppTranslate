@@ -52,7 +52,7 @@ class VisionDetectorScreen extends StatelessWidget {
       }
 
       CustomPainter? painter;
-      if (controller.mode.value == DetectionMode.text) {
+      if (controller.mode.value == VisionMode.text) {
         if (controller.recognizedText.value != null) {
           painter = TextDetectorPainter(
             controller.recognizedText.value!,
@@ -104,7 +104,7 @@ class VisionDetectorScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        controller.mode.value == DetectionMode.text
+                        controller.mode.value == VisionMode.text
                             ? "OCR Mode"
                             : "Object Mode",
                         style: const TextStyle(
@@ -135,13 +135,13 @@ class VisionDetectorScreen extends StatelessWidget {
                         children: [
                           _buildModeBtn(
                               "Text",
-                              controller.mode.value == DetectionMode.text,
-                              () => controller.mode.value = DetectionMode.text),
+                              controller.mode.value == VisionMode.text,
+                              () => controller.mode.value = VisionMode.text),
                           _buildModeBtn(
                               "Objects",
-                              controller.mode.value == DetectionMode.object,
+                              controller.mode.value == VisionMode.object,
                               () =>
-                                  controller.mode.value = DetectionMode.object),
+                                  controller.mode.value = VisionMode.object),
                         ],
                       )),
                 ),

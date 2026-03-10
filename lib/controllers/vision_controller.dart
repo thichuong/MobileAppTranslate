@@ -1,3 +1,4 @@
+
 import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -7,13 +8,13 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import '../services/camera_service.dart';
 import '../services/vision_service.dart';
 
-enum DetectionMode { text, object }
+enum VisionMode { text, object }
 
 class VisionController extends GetxController {
   final CameraService _cameraService = Get.find<CameraService>();
   final VisionService _visionService = Get.find<VisionService>();
 
-  final Rx<DetectionMode> mode = DetectionMode.text.obs;
+  final Rx<VisionMode> mode = VisionMode.text.obs;
   final RxBool isBusy = false.obs;
 
   // Results
@@ -21,8 +22,11 @@ class VisionController extends GetxController {
   final RxList<DetectedObject> detectedObjects = <DetectedObject>[].obs;
 
   // Camera metadata for painter
-  Size? imageSize;
-  InputImageRotation? imageRotation;
+  final Rx<Size?> _imageSize = Rx<Size?>(null);
+  Size? get imageSize => _imageSize.value;
+
+  final Rx<InputImageRotation?> _imageRotation = Rx<InputImageRotation?>(null);
+  InputImageRotation? get imageRotation => _imageRotation.value;
 
   @override
   void onInit() {
@@ -42,9 +46,9 @@ class VisionController extends GetxController {
   }
 
   void toggleMode() {
-    mode.value = mode.value == DetectionMode.text
-        ? DetectionMode.object
-        : DetectionMode.text;
+    mode.value = mode.value == VisionMode.text
+        ? VisionMode.object
+        : VisionMode.text;
 
     // Clear results on mode switch
     recognizedText.value = null;
@@ -61,11 +65,11 @@ class VisionController extends GetxController {
       return;
     }
 
-    imageSize = Size(image.width.toDouble(), image.height.toDouble());
-    imageRotation = inputImage.metadata?.rotation;
+    _imageSize.value = Size(image.width.toDouble(), image.height.toDouble());
+    _imageRotation.value = inputImage.metadata?.rotation;
 
     try {
-      if (mode.value == DetectionMode.text) {
+      if (mode.value == VisionMode.text) {
         recognizedText.value = await _visionService.recognizeText(inputImage);
       } else {
         detectedObjects.value = await _visionService.detectObjects(inputImage);
@@ -104,12 +108,9 @@ class VisionController extends GetxController {
     if (rotation == null) return null;
 
     final format = InputImageFormatValue.fromRawValue(image.format.raw);
-    if (format == null ||
-        (GetPlatform.isAndroid && format != InputImageFormat.nv21) ||
-        (GetPlatform.isIOS && format != InputImageFormat.bgra8888)) {
-      // Potentially fallback for different formats if needed
-    }
+    if (format == null) return null;
 
+    if (image.planes.isEmpty) return null;
     final plane = image.planes.first;
 
     return InputImage.fromBytes(
@@ -117,8 +118,7 @@ class VisionController extends GetxController {
       metadata: InputImageMetadata(
         size: Size(image.width.toDouble(), image.height.toDouble()),
         rotation: rotation,
-        format: InputImageFormat
-            .bgra8888, // Assuming bgra8888 as per camera_service.dart config
+        format: format,
         bytesPerRow: plane.bytesPerRow,
       ),
     );
