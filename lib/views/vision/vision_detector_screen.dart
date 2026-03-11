@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -35,13 +36,22 @@ class VisionDetectorScreen extends StatelessWidget {
   }
 
   Widget _buildCameraPreview(VisionController controller) {
-    final cameraService = Get.find<CameraService>();
-    if (cameraService.controller == null ||
-        !cameraService.controller!.value.isInitialized) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return Obx(() {
+      if (!controller.isLive.value && controller.imagePath.value != null) {
+        return Image.file(
+          File(controller.imagePath.value!),
+          fit: BoxFit.contain,
+        );
+      }
 
-    return CameraPreview(cameraService.controller!);
+      final cameraService = Get.find<CameraService>();
+      if (cameraService.controller == null ||
+          !cameraService.controller!.value.isInitialized) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      return CameraPreview(cameraService.controller!);
+    });
   }
 
   Widget _buildCanvasLayer(VisionController controller) {
@@ -87,13 +97,9 @@ class VisionDetectorScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.black54,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back_rounded,
-                        color: Colors.white),
-                    onPressed: () => Get.back(),
-                  ),
+                _buildIconButton(
+                  icon: Icons.arrow_back_rounded,
+                  onTap: () => Get.back(),
                 ),
                 Obx(() => Container(
                       padding: const EdgeInsets.symmetric(
@@ -144,16 +150,104 @@ class VisionDetectorScreen extends StatelessWidget {
                         ],
                       )),
                 ),
-                const SizedBox(height: 24),
-                // Status info
-                Obx(() => controller.isBusy.value
-                    ? const CircularProgressIndicator(strokeWidth: 2)
-                    : const Icon(Icons.check_circle_outline,
-                        color: Colors.greenAccent, size: 24)),
+                const SizedBox(height: 32),
+                // Main Actions
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildIconButton(
+                      icon: Icons.photo_library_outlined,
+                      onTap: () => controller.pickImage(),
+                    ),
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () => controller.captureImage(),
+                          child: Container(
+                            height: 72,
+                            width: 72,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 4),
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Obx(() => controller.isBusy.value
+                            ? const SizedBox(
+                                height: 72,
+                                width: 72,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 4,
+                                ),
+                              )
+                            : const SizedBox.shrink()),
+                      ],
+                    ),
+                    Obx(() => !controller.isLive.value
+                        ? _buildIconButton(
+                            icon: Icons.refresh_rounded,
+                            onTap: () => controller.startLiveFeed(),
+                          )
+                        : const SizedBox(width: 48)),
+                  ],
+                ),
               ],
             ),
           ),
+
+          // Translate Button
+          Obx(() {
+            final hasResults = (controller.recognizedText.value != null &&
+                    controller.recognizedText.value!.text.isNotEmpty) ||
+                (controller.detectedObjects.isNotEmpty);
+
+            if (!hasResults || controller.isLive.value) {
+              return const SizedBox.shrink();
+            }
+
+            return Positioned(
+              bottom: 156,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: ElevatedButton.icon(
+                  onPressed: () => controller.sendToTranslate(),
+                  icon: const Icon(Icons.translate_rounded),
+                  label: const Text("Translate Results"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
         ],
+      ),
+    );
+  }
+
+  Widget _buildIconButton(
+      {required IconData icon, required VoidCallback onTap}) {
+    return CircleAvatar(
+      backgroundColor: Colors.black54,
+      child: IconButton(
+        icon: Icon(icon, color: Colors.white),
+        onPressed: onTap,
       ),
     );
   }

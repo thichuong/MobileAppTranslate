@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import '../../controllers/translate_controller.dart';
 import '../vision/vision_detector_screen.dart';
+import 'settings_screen.dart';
 import 'widgets/language_selector.dart';
 
 class HomeScreen extends GetView<TranslateController> {
@@ -15,7 +16,7 @@ class HomeScreen extends GetView<TranslateController> {
         title: const Text('AI Translate'),
         actions: [
           IconButton(
-            onPressed: () {}, // Future: Settings
+            onPressed: () => Get.to(() => const SettingsScreen()),
             icon: const Icon(Icons.settings_outlined),
           ),
         ],
@@ -140,7 +141,7 @@ class HomeScreen extends GetView<TranslateController> {
         _buildActionButton(
           context,
           icon: Icons.camera_alt_outlined,
-          label: "Camera",
+          label: "Scanner",
           onTap: () async {
             final granted = await controller.requestCameraPermission();
             if (granted) {
@@ -150,13 +151,6 @@ class HomeScreen extends GetView<TranslateController> {
                   "Camera access is required for vision features.");
             }
           },
-        ),
-        // Gallery Action
-        _buildActionButton(
-          context,
-          icon: Icons.photo_library_outlined,
-          label: "Photos",
-          onTap: () {}, // Future: Image Picker
         ),
       ],
     );

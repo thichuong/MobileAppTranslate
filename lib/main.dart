@@ -10,6 +10,7 @@ import 'services/speech_service.dart';
 import 'services/camera_service.dart';
 import 'services/vision_service.dart';
 import 'controllers/translate_controller.dart';
+import 'controllers/settings_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,7 @@ void main() async {
   Get.put(VisionService());
 
   // Initialize Controllers
+  Get.put(SettingsController());
   Get.put(TranslateController());
 
   // Force portrait orientation
