@@ -83,10 +83,28 @@ class VisionService extends GetxService {
     return await _textRecognizer.processImage(inputImage);
   }
 
-  /// Detect objects sử dụng EfficientNet-Lite custom model
+  /// Detect objects sử dụng EfficientNet-Lite custom model (stream mode)
   Future<List<DetectedObject>> detectObjects(InputImage inputImage) async {
     if (_objectDetector == null) await initCustomDetector();
     return await _objectDetector!.processImage(inputImage);
+  }
+
+  /// Detect objects trên ảnh tĩnh — dùng DetectionMode.single
+  Future<List<DetectedObject>> detectObjectsSingle(
+      InputImage inputImage) async {
+    final modelPath = await _getModelPath(_currentModel.assetPath);
+    final options = LocalObjectDetectorOptions(
+      mode: DetectionMode.single,
+      modelPath: modelPath,
+      classifyObjects: true,
+      multipleObjects: true,
+    );
+    final detector = ObjectDetector(options: options);
+    try {
+      return await detector.processImage(inputImage);
+    } finally {
+      await detector.close();
+    }
   }
 
   Future<void> closeRecognizers() async {

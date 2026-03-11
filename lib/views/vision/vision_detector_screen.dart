@@ -38,9 +38,12 @@ class VisionDetectorScreen extends StatelessWidget {
   Widget _buildCameraPreview(VisionController controller) {
     return Obx(() {
       if (!controller.isLive.value && controller.imagePath.value != null) {
-        return Image.file(
-          File(controller.imagePath.value!),
-          fit: BoxFit.contain,
+        // Dùng BoxFit.cover để cùng kích thước với camera preview
+        return SizedBox.expand(
+          child: Image.file(
+            File(controller.imagePath.value!),
+            fit: BoxFit.cover,
+          ),
         );
       }
 
@@ -81,6 +84,8 @@ class VisionDetectorScreen extends StatelessWidget {
 
       if (painter == null) return const SizedBox.shrink();
 
+      // Luôn vẽ full screen — kết quả detection từ live mode
+      // và ảnh tĩnh đều dùng cùng kích thước (BoxFit.cover)
       return CustomPaint(painter: painter);
     });
   }

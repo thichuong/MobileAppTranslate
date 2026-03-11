@@ -24,6 +24,10 @@ class VisionController extends GetxController {
   final Rx<String?> imagePath = Rx<String?>(null);
   final ImagePicker _picker = ImagePicker();
 
+  // Throttle: detection chạy ở ~5 FPS để tiết kiệm năng lượng
+  static const int _detectionIntervalMs = 200;
+  final Stopwatch _frameStopwatch = Stopwatch();
+
   // Results
   final Rx<RecognizedText?> recognizedText = Rx<RecognizedText?>(null);
   final RxList<DetectedObject> detectedObjects = <DetectedObject>[].obs;
@@ -47,12 +51,16 @@ class VisionController extends GetxController {
     await _visionService.initCustomDetector(
         model: settings.selectedModel.value);
     await _cameraService.initializeController();
-    _cameraService.controller?.startImageStream(_processCameraImage);
+    _frameStopwatch.reset();
+    _frameStopwatch.start();
+    _cameraService.controller?.startImageStream(_onCameraFrame);
     update();
   }
 
   Future<void> stopLiveFeed() async {
     isLive.value = false;
+    _frameStopwatch.stop();
+    _frameStopwatch.reset();
     if (_cameraService.controller?.value.isStreamingImages ?? false) {
       await _cameraService.controller?.stopImageStream();
     }
@@ -105,8 +113,16 @@ class VisionController extends GetxController {
     Get.back(); // Return to main screen
   }
 
-  void _processCameraImage(CameraImage image) async {
+  /// Callback nhẹ cho mỗi camera frame — chỉ check throttle, không xử lý nặng
+  void _onCameraFrame(CameraImage image) {
     if (isBusy.value) return;
+    if (_frameStopwatch.elapsedMilliseconds < _detectionIntervalMs) return;
+    _frameStopwatch.reset();
+    _processFrame(image);
+  }
+
+  /// Xử lý detection trên frame được chọn (~5 FPS)
+  Future<void> _processFrame(CameraImage image) async {
     isBusy.value = true;
 
     final inputImage = _inputImageFromCameraImage(image);
@@ -137,10 +153,14 @@ class VisionController extends GetxController {
 
     try {
       isBusy.value = true;
+      // Dừng stream trước khi chụp để tránh crash trên Android
+      if (_cameraService.controller?.value.isStreamingImages ?? false) {
+        await _cameraService.controller?.stopImageStream();
+      }
       final XFile file = await _cameraService.controller!.takePicture();
       imagePath.value = file.path;
       await stopLiveFeed();
-      await _processStaticImage(file.path);
+      // Giữ nguyên kết quả detection từ live mode — không detect lại
     } catch (e) {
       debugPrint("Capture error: $e");
     } finally {
@@ -181,7 +201,8 @@ class VisionController extends GetxController {
       if (mode.value == VisionMode.text) {
         recognizedText.value = await _visionService.recognizeText(inputImage);
       } else {
-        detectedObjects.value = await _visionService.detectObjects(inputImage);
+        detectedObjects.value =
+            await _visionService.detectObjectsSingle(inputImage);
       }
     } catch (e) {
       debugPrint("Static processing error: $e");
