@@ -14,9 +14,12 @@ class VisionService extends GetxService {
   static const double confidenceThreshold = 0.5;
   static const int maxLabelsPerObject = 3;
 
-  /// Khởi tạo Object Detector với EfficientNet-Lite custom model
+  // Đường dẫn model mặc định (Lite4 cho độ chính xác cao nhất)
+  static const String _modelAssetPath = 'assets/ml/efficientnet_lite4.tflite';
+
+  /// Khởi tạo Object Detector với EfficientNet-Lite4 custom model
   Future<void> initCustomDetector() async {
-    final modelPath = await _getModelPath('assets/ml/efficientnet_lite0.tflite');
+    final modelPath = await _getModelPath(_modelAssetPath);
 
     final options = LocalObjectDetectorOptions(
       mode: DetectionMode.stream,
@@ -29,7 +32,6 @@ class VisionService extends GetxService {
   }
 
   /// Copy model từ Flutter assets ra application support directory
-  /// (ML Kit yêu cầu đường dẫn filesystem thực, không đọc được từ assets trực tiếp)
   Future<String> _getModelPath(String asset) async {
     final path = '${(await getApplicationSupportDirectory()).path}/$asset';
     await Directory(dirname(path)).create(recursive: true);
@@ -48,7 +50,7 @@ class VisionService extends GetxService {
     return await _textRecognizer.processImage(inputImage);
   }
 
-  /// Detect objects sử dụng EfficientNet-Lite custom model
+  /// Detect objects sử dụng EfficientNet-Lite4 custom model
   Future<List<DetectedObject>> detectObjects(InputImage inputImage) async {
     if (_objectDetector == null) await initCustomDetector();
     return await _objectDetector!.processImage(inputImage);

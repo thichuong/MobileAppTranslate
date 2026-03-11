@@ -11,7 +11,6 @@ class VisionDetectorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // We instantiate the controller here to manage its lifecycle via GetX
     return GetBuilder<VisionController>(
       init: VisionController(),
       builder: (controller) {
@@ -111,7 +110,7 @@ class VisionDetectorScreen extends StatelessWidget {
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     )),
-                const SizedBox(width: 48), // Placeholder to balance back button
+                const SizedBox(width: 48), // Placeholder
               ],
             ),
           ),
