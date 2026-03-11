@@ -19,6 +19,28 @@ class SettingsScreen extends GetView<SettingsController> {
           const SizedBox(height: 12),
           _buildModelSelector(),
           const SizedBox(height: 24),
+          _buildSectionHeader('Tốc độ Camera (FPS)'),
+          const SizedBox(height: 12),
+          _buildFpsSelector(
+            currentValue: controller.cameraFps,
+            min: 15,
+            max: 60,
+            divisions: 3,
+            onChanged: (v) => controller.setCameraFps(v.toInt()),
+            label: (v) => '${v.toInt()} FPS',
+          ),
+          const SizedBox(height: 24),
+          _buildSectionHeader('Tốc độ Xử lý AI (FPS)'),
+          const SizedBox(height: 12),
+          _buildFpsSelector(
+            currentValue: controller.processingFps,
+            min: 1,
+            max: 20,
+            divisions: 19,
+            onChanged: (v) => controller.setProcessingFps(v.toInt()),
+            label: (v) => '${v.toInt()} FPS',
+          ),
+          const SizedBox(height: 24),
           _buildInfoNote(),
         ],
       ),
@@ -102,6 +124,51 @@ class SettingsScreen extends GetView<SettingsController> {
         size,
         style: const TextStyle(fontSize: 10, color: Colors.white38),
       ),
+    );
+  }
+
+  Widget _buildFpsSelector({
+    required RxInt currentValue,
+    required double min,
+    required double max,
+    required int divisions,
+    required Function(double) onChanged,
+    required String Function(double) label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF16213E),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: Obx(() => Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Giá trị:',
+                      style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  Text(
+                    label(currentValue.value.toDouble()),
+                    style: TextStyle(
+                      color: Get.theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              Slider(
+                value: currentValue.value.toDouble(),
+                min: min,
+                max: max,
+                divisions: divisions,
+                activeColor: Get.theme.colorScheme.primary,
+                inactiveColor: Colors.white10,
+                onChanged: onChanged,
+              ),
+            ],
+          )),
     );
   }
 

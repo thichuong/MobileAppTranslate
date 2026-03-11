@@ -79,7 +79,13 @@ class VisionService extends GetxService {
     return file.path;
   }
 
+  /// Recognize text (Stream mode)
   Future<RecognizedText> recognizeText(InputImage inputImage) async {
+    return await _textRecognizer.processImage(inputImage);
+  }
+
+  /// Recognize text (Single image mode)
+  Future<RecognizedText> recognizeTextSingle(InputImage inputImage) async {
     return await _textRecognizer.processImage(inputImage);
   }
 

@@ -32,6 +32,11 @@ class CameraService extends GetxService {
     );
 
     await controller?.initialize();
+    
+    // Note: To set specific FPS (like 60FPS), hardware must support it.
+    // Most modern devices default to 30/60 depending on light.
+    // In advanced implementations, one would use fpsRange if available.
+
     isInitialized = true;
   }
 

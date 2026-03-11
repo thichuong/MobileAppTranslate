@@ -24,8 +24,8 @@ class VisionController extends GetxController {
   final Rx<String?> imagePath = Rx<String?>(null);
   final ImagePicker _picker = ImagePicker();
 
-  // Throttle: detection chạy ở ~5 FPS để tiết kiệm năng lượng
-  static const int _detectionIntervalMs = 200;
+  // Throttle: detection chạy ở FPS được cấu hình để tiết kiệm năng lượng
+  int get _detectionIntervalMs => 1000 ~/ Get.find<SettingsController>().processingFps.value;
   final Stopwatch _frameStopwatch = Stopwatch();
 
   // Results
@@ -122,6 +122,8 @@ class VisionController extends GetxController {
   }
 
   /// Xử lý detection trên frame được chọn (~5 FPS)
+  /// Kỹ thuật "2 luồng": Dart UI thread gửi ảnh gốc qua Native thread xử lý,
+  /// giúp UI/Camera preview luôn mượt (~60 FPS) trong khi detection chạy ngầm.
   Future<void> _processFrame(CameraImage image) async {
     isBusy.value = true;
 
@@ -199,7 +201,8 @@ class VisionController extends GetxController {
 
     try {
       if (mode.value == VisionMode.text) {
-        recognizedText.value = await _visionService.recognizeText(inputImage);
+        recognizedText.value =
+            await _visionService.recognizeTextSingle(inputImage);
       } else {
         detectedObjects.value =
             await _visionService.detectObjectsSingle(inputImage);
