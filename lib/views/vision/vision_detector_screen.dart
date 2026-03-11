@@ -185,7 +185,7 @@ class VisionDetectorScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        Obx(() => controller.isBusy.value
+                        Obx(() => controller.isActionBusy.value
                             ? const SizedBox(
                                 height: 72,
                                 width: 72,

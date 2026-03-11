@@ -27,7 +27,7 @@ enum EfficientNetModel {
 }
 
 class VisionService extends GetxService {
-  final TextRecognizer _textRecognizer = TextRecognizer();
+  TextRecognizer? _textRecognizer;
   ObjectDetector? _objectDetector;
   EfficientNetModel _currentModel = EfficientNetModel.lite4;
 
@@ -36,6 +36,11 @@ class VisionService extends GetxService {
   static const int maxLabelsPerObject = 3;
 
   EfficientNetModel get currentModel => _currentModel;
+
+  /// Khởi tạo Text Recognizer nếu chưa có
+  void _initTextRecognizer() {
+    _textRecognizer ??= TextRecognizer();
+  }
 
   /// Khởi tạo Object Detector với model được chỉ định
   Future<void> initCustomDetector({EfficientNetModel? model}) async {
@@ -49,6 +54,7 @@ class VisionService extends GetxService {
     final modelPath = await _getModelPath(model.assetPath);
 
     final options = LocalObjectDetectorOptions(
+      // Chế độ stream để nhận diện liên tục
       mode: DetectionMode.stream,
       modelPath: modelPath,
       classifyObjects: true,
@@ -81,12 +87,14 @@ class VisionService extends GetxService {
 
   /// Recognize text (Stream mode)
   Future<RecognizedText> recognizeText(InputImage inputImage) async {
-    return await _textRecognizer.processImage(inputImage);
+    _initTextRecognizer();
+    return await _textRecognizer!.processImage(inputImage);
   }
 
   /// Recognize text (Single image mode)
   Future<RecognizedText> recognizeTextSingle(InputImage inputImage) async {
-    return await _textRecognizer.processImage(inputImage);
+    _initTextRecognizer();
+    return await _textRecognizer!.processImage(inputImage);
   }
 
   /// Detect objects sử dụng EfficientNet-Lite custom model (stream mode)
@@ -114,8 +122,10 @@ class VisionService extends GetxService {
   }
 
   Future<void> closeRecognizers() async {
-    await _textRecognizer.close();
+    await _textRecognizer?.close();
+    _textRecognizer = null;
     await _objectDetector?.close();
+    _objectDetector = null;
   }
 
   @override
