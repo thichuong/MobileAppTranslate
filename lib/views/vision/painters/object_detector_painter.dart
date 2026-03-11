@@ -8,20 +8,24 @@ class ObjectDetectorPainter extends CustomPainter {
     this.objects,
     this.absoluteImageSize,
     this.rotation,
+    this.translatedLabels,
   );
 
   final List<DetectedObject> objects;
   final Size absoluteImageSize;
   final InputImageRotation rotation;
+  final Map<String, String> translatedLabels;
 
   @override
   void paint(Canvas canvas, Size size) {
     final Paint boxPaint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0
+      ..strokeWidth = 2.5
       ..color = Colors.cyanAccent;
 
-    final Paint bgPaint = Paint()..color = Colors.black87;
+    final Paint labelBgPaint = Paint()
+      ..color = Colors.black.withOpacity(0.7)
+      ..style = PaintingStyle.fill;
 
     for (final object in objects) {
       final rect = Rect.fromLTRB(
@@ -32,44 +36,69 @@ class ObjectDetectorPainter extends CustomPainter {
             object.boundingBox.bottom, rotation, size, absoluteImageSize),
       );
 
-      canvas.drawRect(rect, boxPaint);
+      // Draw bounding box with slight glow effect simulated by stroke
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(8)),
+        boxPaint,
+      );
 
-      // Lọc labels theo confidence threshold và giới hạn số lượng
       final filteredLabels = object.labels
           .where((l) => l.confidence >= VisionService.confidenceThreshold)
           .take(VisionService.maxLabelsPerObject)
           .toList();
 
-      // Vẽ từng label phía trên bounding box
       double yOffset = 0;
       for (final label in filteredLabels) {
-        final text =
-            '${label.text} (${(label.confidence * 100).toStringAsFixed(0)}%)';
-        final TextPainter tp = TextPainter(
-          text: TextSpan(
-            text: text,
-            style: const TextStyle(
-              color: Colors.cyanAccent,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+        final String normalizedLabel = label.text.toLowerCase().trim();
+        final String translated = translatedLabels[normalizedLabel] ?? "";
+        
+        final String displayText = translated.isNotEmpty
+            ? '${label.text} ($translated)'
+            : label.text;
+        final String confidenceText = '${(label.confidence * 100).toStringAsFixed(0)}%';
+
+        final TextSpan span = TextSpan(
+          children: [
+            TextSpan(
+              text: "$displayText ",
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
+            TextSpan(
+              text: confidenceText,
+              style: TextStyle(
+                color: Colors.cyanAccent.withOpacity(0.8),
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        );
+
+        final TextPainter tp = TextPainter(
+          text: span,
           textAlign: TextAlign.left,
           textDirection: TextDirection.ltr,
         );
         tp.layout();
 
-        // Vẽ nền đen cho text
-        final textRect = Rect.fromLTWH(
+        final labelRect = Rect.fromLTWH(
           rect.left,
-          rect.top - 20 - yOffset,
-          tp.width + 8,
-          tp.height + 4,
+          rect.top - tp.height - 8 - yOffset,
+          tp.width + 12,
+          tp.height + 6,
         );
-        canvas.drawRect(textRect, bgPaint);
+        
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(labelRect, const Radius.circular(6)),
+          labelBgPaint,
+        );
 
-        tp.paint(canvas, Offset(rect.left + 4, rect.top - 18 - yOffset));
-        yOffset += tp.height + 6;
+        tp.paint(canvas, Offset(rect.left + 6, rect.top - tp.height - 5 - yOffset));
+        yOffset += tp.height + 10;
       }
     }
   }

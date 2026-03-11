@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/vision_controller.dart';
+import '../../../controllers/translate_controller.dart';
 import '../../../services/camera_service.dart';
 import 'painters/text_detector_painter.dart';
 import 'painters/object_detector_painter.dart';
@@ -79,6 +80,7 @@ class VisionDetectorScreen extends StatelessWidget {
             controller.recognizedText.value!,
             controller.imageSize!,
             controller.imageRotation!,
+            controller.translatedTextBlocks,
           );
         }
       } else {
@@ -87,6 +89,7 @@ class VisionDetectorScreen extends StatelessWidget {
             controller.detectedObjects,
             controller.imageSize!,
             controller.imageRotation!,
+            controller.translatedLabels,
           );
         }
       }
@@ -115,21 +118,30 @@ class VisionDetectorScreen extends StatelessWidget {
                   icon: Icons.arrow_back_rounded,
                   onTap: () => Get.back(),
                 ),
-                Obx(() => Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        controller.mode.value == VisionMode.text
-                            ? "OCR Mode"
-                            : "Object Mode",
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    )),
+                Expanded(
+                  child: Center(
+                    child: Obx(() {
+                      final tc = Get.find<TranslateController>();
+                      final source = tc.sourceLanguage.value.toString().split('.').last.toUpperCase();
+                      final target = tc.targetLanguage.value.toString().split('.').last.toUpperCase();
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.black54,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          "$source → $target",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
                 const SizedBox(width: 48), // Placeholder
               ],
             ),

@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import '../controllers/translate_controller.dart';
 import '../services/camera_service.dart';
 import '../services/vision_service.dart';
+import '../services/translation_service.dart';
 import 'settings_controller.dart';
 
 enum VisionMode { text, object }
@@ -17,6 +18,8 @@ enum VisionMode { text, object }
 class VisionController extends GetxController {
   final CameraService _cameraService = Get.find<CameraService>();
   final VisionService _visionService = Get.find<VisionService>();
+  final TranslationService _translationService = Get.find<TranslationService>();
+  final TranslateController _translateController = Get.find<TranslateController>();
 
   final Rx<VisionMode> mode = VisionMode.text.obs;
   final RxBool isActionBusy = false.obs; // For UI actions like capture/pick
@@ -35,6 +38,17 @@ class VisionController extends GetxController {
   final Rx<RecognizedText?> recognizedText = Rx<RecognizedText?>(null);
   final RxList<DetectedObject> detectedObjects = <DetectedObject>[].obs;
 
+  // Translation Results
+  final RxMap<String, String> translatedTextBlocks = <String, String>{}.obs;
+  final RxMap<String, String> translatedLabels = <String, String>{}.obs;
+
+  // Smoothing and temporal tracking
+  final Map<String, Rect> _smoothedRects = {};
+  final Map<String, DateTime> _lastSeenRects = {};
+  final Map<String, TextBlock> _cachedBlocks = {}; // Store full blocks for ghosting
+  static const Duration _rectDecayDuration = Duration(milliseconds: 500);
+  static const double _smoothingFactor = 0.4; // Low value = more smoothing
+
   // Caching for immediate capture feedback
   RecognizedText? _lastRecognizedText;
   List<DetectedObject> _lastDetectedObjects = [];
@@ -50,6 +64,21 @@ class VisionController extends GetxController {
   void onInit() {
     super.onInit();
     startLiveFeed();
+
+    // Re-init translator when languages change
+    ever(_translateController.sourceLanguage, (_) => _initTranslator());
+    ever(_translateController.targetLanguage, (_) => _initTranslator());
+    _initTranslator();
+  }
+
+  Future<void> _initTranslator() async {
+    await _translationService.initTranslator(
+      sourceLanguage: _translateController.sourceLanguage.value,
+      targetLanguage: _translateController.targetLanguage.value,
+    );
+    // Clear caches when language changes
+    translatedTextBlocks.clear();
+    translatedLabels.clear();
   }
 
   Future<void> startLiveFeed() async {
@@ -152,11 +181,20 @@ class VisionController extends GetxController {
       if (mode.value == VisionMode.text) {
         final results = await _visionService.recognizeText(inputImage);
         if (_shouldStopDetection) return;
-        recognizedText.value = results;
-        _lastRecognizedText = results;
+        
+        final processedResults = _smoothTextResults(results);
+        // Translate before showing results
+        await _translateTextBlocks(processedResults);
+        
+        recognizedText.value = processedResults;
+        _lastRecognizedText = processedResults;
       } else {
         final results = await _visionService.detectObjects(inputImage);
         if (_shouldStopDetection) return;
+        
+        // Translate before showing results
+        await _translateObjectLabels(results);
+        
         detectedObjects.value = results;
         _lastDetectedObjects = results;
       }
@@ -165,6 +203,108 @@ class VisionController extends GetxController {
     } finally {
       _isDetecting.value = false;
     }
+  }
+
+  RecognizedText _smoothTextResults(RecognizedText results) {
+    final now = DateTime.now();
+    final List<TextBlock> smoothedBlocks = [];
+
+    // Update temporal state
+    for (final block in results.blocks) {
+      final key = _normalizeText(block.text);
+      if (key.isEmpty) continue;
+
+      if (_smoothedRects.containsKey(key)) {
+        // Interpolate rect
+        final oldRect = _smoothedRects[key]!;
+        final newRect = block.boundingBox;
+        _smoothedRects[key] = Rect.fromLTRB(
+          _lerp(oldRect.left, newRect.left, _smoothingFactor),
+          _lerp(oldRect.top, newRect.top, _smoothingFactor),
+          _lerp(oldRect.right, newRect.right, _smoothingFactor),
+          _lerp(oldRect.bottom, newRect.bottom, _smoothingFactor),
+        );
+      } else {
+        _smoothedRects[key] = block.boundingBox;
+      }
+      _lastSeenRects[key] = now;
+      _cachedBlocks[key] = block;
+    }
+
+    // Clean up old rects
+    final keysToRemove = <String>[];
+    _lastSeenRects.forEach((key, lastSeen) {
+      if (now.difference(lastSeen) > _rectDecayDuration) {
+        keysToRemove.add(key);
+      }
+    });
+    for (final key in keysToRemove) {
+      _lastSeenRects.remove(key);
+      _smoothedRects.remove(key);
+      _cachedBlocks.remove(key);
+    }
+
+    // Reconstruct RecognizedText using smoothed rects AND include recently seen blocks to prevent flicker
+    _lastSeenRects.forEach((key, _) {
+      final cachedBlock = _cachedBlocks[key]!;
+      smoothedBlocks.add(TextBlock(
+        text: cachedBlock.text,
+        lines: cachedBlock.lines,
+        boundingBox: _smoothedRects[key]!,
+        recognizedLanguages: cachedBlock.recognizedLanguages,
+        cornerPoints: cachedBlock.cornerPoints,
+      ));
+    });
+
+    return RecognizedText(text: results.text, blocks: smoothedBlocks);
+  }
+
+  double _lerp(double a, double b, double t) => a + (b - a) * t;
+
+  Future<void> _translateTextBlocks(RecognizedText results) async {
+    final futures = <Future>[];
+    for (final block in results.blocks) {
+      // Normalize text: lowercase, trim, remove non-alphanumeric at start/end
+      final normalized = _normalizeText(block.text);
+      if (normalized.isEmpty || translatedTextBlocks.containsKey(normalized)) continue;
+
+      // Throttle: avoid too many items
+      if (translatedTextBlocks.length > 100) translatedTextBlocks.clear();
+
+      futures.add(_translationService.translateText(normalized).then((translated) {
+        if (translated.isNotEmpty && !translated.startsWith("Translation error")) {
+          translatedTextBlocks[normalized] = translated;
+        }
+      }));
+    }
+    await Future.wait(futures);
+  }
+
+  String _normalizeText(String text) {
+    // Basic normalization to avoid redundant translations for slight variations
+    return text.trim()
+        .replaceAll(RegExp(r'[ \t]+'), ' ') // Normalize spaces
+        .toLowerCase();
+  }
+
+  Future<void> _translateObjectLabels(List<DetectedObject> objects) async {
+    final labelsToTranslate = objects
+        .expand((obj) => obj.labels)
+        .where((l) => l.confidence >= VisionService.confidenceThreshold)
+        .map((l) => l.text.toLowerCase().trim())
+        .toSet();
+
+    final futures = <Future>[];
+    for (final label in labelsToTranslate) {
+      if (translatedLabels.containsKey(label)) continue;
+
+      futures.add(_translationService.translateText(label).then((translated) {
+        if (translated.isNotEmpty && !translated.startsWith("Translation error")) {
+          translatedLabels[label] = translated;
+        }
+      }));
+    }
+    await Future.wait(futures);
   }
 
   Future<void> captureImage() async {
@@ -230,11 +370,13 @@ class VisionController extends GetxController {
 
     try {
       if (mode.value == VisionMode.text) {
-        recognizedText.value =
-            await _visionService.recognizeTextSingle(inputImage);
+        final results = await _visionService.recognizeTextSingle(inputImage);
+        await _translateTextBlocks(results);
+        recognizedText.value = results;
       } else {
-        detectedObjects.value =
-            await _visionService.detectObjectsSingle(inputImage);
+        final results = await _visionService.detectObjectsSingle(inputImage);
+        await _translateObjectLabels(results);
+        detectedObjects.assignAll(results);
       }
     } catch (e) {
       debugPrint("Static processing error: $e");
