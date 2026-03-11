@@ -11,6 +11,7 @@ import '../controllers/translate_controller.dart';
 import '../services/camera_service.dart';
 import '../services/vision_service.dart';
 import '../services/translation_service.dart';
+import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import 'settings_controller.dart';
 
 enum VisionMode { text, object }
@@ -40,7 +41,8 @@ class VisionController extends GetxController {
 
   // Translation Results
   final RxMap<String, String> translatedTextBlocks = <String, String>{}.obs;
-  final RxMap<String, String> translatedLabels = <String, String>{}.obs;
+  final RxMap<String, String> translatedLabels = <String, String>{}.obs; // Primary (Target)
+  final RxMap<String, String> sourceTranslatedLabels = <String, String>{}.obs; // For Object Detection (Input)
 
   // Smoothing and temporal tracking
   final Map<String, Rect> _smoothedRects = {};
@@ -76,9 +78,11 @@ class VisionController extends GetxController {
       sourceLanguage: _translateController.sourceLanguage.value,
       targetLanguage: _translateController.targetLanguage.value,
     );
+
     // Clear caches when language changes
     translatedTextBlocks.clear();
     translatedLabels.clear();
+    sourceTranslatedLabels.clear();
   }
 
   Future<void> startLiveFeed() async {
@@ -131,11 +135,14 @@ class VisionController extends GetxController {
       }
     } else {
       if (detectedObjects.isNotEmpty) {
-        // Collect labels from detected objects
+        // Collect labels from detected objects - use source translated labels (IN)
         final labels = detectedObjects
             .expand((obj) => obj.labels)
             .where((label) => label.confidence > 0.5)
-            .map((label) => label.text)
+            .map((label) {
+              final normalized = label.text.toLowerCase().trim();
+              return sourceTranslatedLabels[normalized] ?? label.text;
+            })
             .toSet()
             .toList();
         textToSend = labels.join(", ");
@@ -318,13 +325,27 @@ class VisionController extends GetxController {
 
     final futures = <Future>[];
     for (final label in labelsToTranslate) {
-      if (translatedLabels.containsKey(label)) continue;
+      // 1. Translate to Target (translatedLabels)
+      if (!translatedLabels.containsKey(label)) {
+        futures.add(_translationService.translateText(label).then((translated) {
+          if (translated.isNotEmpty && !translated.startsWith("Translation error")) {
+            translatedLabels[label] = translated;
+          }
+        }));
+      }
 
-      futures.add(_translationService.translateText(label).then((translated) {
-        if (translated.isNotEmpty && !translated.startsWith("Translation error")) {
-          translatedLabels[label] = translated;
-        }
-      }));
+      // 2. Translate to Source (sourceTranslatedLabels)
+      if (!sourceTranslatedLabels.containsKey(label)) {
+        futures.add(_translationService
+            .translateBetween(label,
+                source: TranslateLanguage.english,
+                target: _translateController.sourceLanguage.value)
+            .then((translated) {
+          if (translated.isNotEmpty) {
+            sourceTranslatedLabels[label] = translated;
+          }
+        }));
+      }
     }
     await Future.wait(futures);
   }

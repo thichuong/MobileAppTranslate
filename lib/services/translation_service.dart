@@ -25,6 +25,26 @@ class TranslationService extends GetxService {
     }
   }
 
+  Future<String> translateBetween(
+    String text, {
+    required TranslateLanguage source,
+    required TranslateLanguage target,
+  }) async {
+    if (source == target) return text;
+    final translator = OnDeviceTranslator(
+      sourceLanguage: source,
+      targetLanguage: target,
+    );
+    try {
+      final result = await translator.translateText(text);
+      return result;
+    } catch (e) {
+      return text; // Fallback to original on error
+    } finally {
+      await translator.close();
+    }
+  }
+
   Future<bool> downloadModel(TranslateLanguage language) async {
     final modelManager = OnDeviceTranslatorModelManager();
     return await modelManager

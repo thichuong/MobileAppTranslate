@@ -90,6 +90,7 @@ class VisionDetectorScreen extends StatelessWidget {
             controller.imageSize!,
             controller.imageRotation!,
             controller.translatedLabels,
+            controller.sourceTranslatedLabels,
           );
         }
       }

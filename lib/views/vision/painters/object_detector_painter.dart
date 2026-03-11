@@ -9,12 +9,14 @@ class ObjectDetectorPainter extends CustomPainter {
     this.absoluteImageSize,
     this.rotation,
     this.translatedLabels,
+    this.sourceTranslatedLabels,
   );
 
   final List<DetectedObject> objects;
   final Size absoluteImageSize;
   final InputImageRotation rotation;
   final Map<String, String> translatedLabels;
+  final Map<String, String> sourceTranslatedLabels;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -51,38 +53,39 @@ class ObjectDetectorPainter extends CustomPainter {
       for (final label in filteredLabels) {
         final String normalizedLabel = label.text.toLowerCase().trim();
         final String translated = translatedLabels[normalizedLabel] ?? "";
+        final String sourceTranslated = sourceTranslatedLabels[normalizedLabel] ?? label.text;
         
         final String confidenceText = '${(label.confidence * 100).toStringAsFixed(0)}%';
 
         final TextSpan span = TextSpan(
           children: [
             TextSpan(
-              text: "${label.text} ",
+              text: "$sourceTranslated ",
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
             TextSpan(
               text: confidenceText,
               style: TextStyle(
                 color: Colors.cyanAccent.withOpacity(0.8),
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: FontWeight.w400,
               ),
             ),
-            if (translated.isNotEmpty)
+            if (translated.isNotEmpty) ...[
               TextSpan(
                 text: "\n$translated",
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  fontStyle: FontStyle.italic,
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
                   height: 1.2,
                 ),
               ),
+            ],
           ],
         );
 
