@@ -7,13 +7,32 @@ double translateX(
   Size size,
   Size absoluteImageSize,
 ) {
+  final double scaleX = (rotation == InputImageRotation.rotation90deg ||
+          rotation == InputImageRotation.rotation270deg)
+      ? size.width / absoluteImageSize.height
+      : size.width / absoluteImageSize.width;
+
+  final double scaleY = (rotation == InputImageRotation.rotation90deg ||
+          rotation == InputImageRotation.rotation270deg)
+      ? size.height / absoluteImageSize.width
+      : size.height / absoluteImageSize.height;
+
+  final double scale = scaleX > scaleY ? scaleX : scaleY;
+  final double offsetX = (size.width -
+          ((rotation == InputImageRotation.rotation90deg ||
+                  rotation == InputImageRotation.rotation270deg)
+              ? absoluteImageSize.height
+              : absoluteImageSize.width) *
+              scale) /
+      2;
+
   switch (rotation) {
     case InputImageRotation.rotation90deg:
-      return x * size.width / absoluteImageSize.height;
+      return x * scale + offsetX;
     case InputImageRotation.rotation270deg:
-      return size.width - x * size.width / absoluteImageSize.height;
+      return size.width - x * scale - offsetX;
     default:
-      return x * size.width / absoluteImageSize.width;
+      return x * scale + offsetX;
   }
 }
 
@@ -23,11 +42,24 @@ double translateY(
   Size size,
   Size absoluteImageSize,
 ) {
-  switch (rotation) {
-    case InputImageRotation.rotation90deg:
-    case InputImageRotation.rotation270deg:
-      return y * size.height / absoluteImageSize.width;
-    default:
-      return y * size.height / absoluteImageSize.height;
-  }
+  final double scaleX = (rotation == InputImageRotation.rotation90deg ||
+          rotation == InputImageRotation.rotation270deg)
+      ? size.width / absoluteImageSize.height
+      : size.width / absoluteImageSize.width;
+
+  final double scaleY = (rotation == InputImageRotation.rotation90deg ||
+          rotation == InputImageRotation.rotation270deg)
+      ? size.height / absoluteImageSize.width
+      : size.height / absoluteImageSize.height;
+
+  final double scale = scaleX > scaleY ? scaleX : scaleY;
+  final double offsetY = (size.height -
+          ((rotation == InputImageRotation.rotation90deg ||
+                  rotation == InputImageRotation.rotation270deg)
+              ? absoluteImageSize.width
+              : absoluteImageSize.height) *
+              scale) /
+      2;
+
+  return y * scale + offsetY;
 }

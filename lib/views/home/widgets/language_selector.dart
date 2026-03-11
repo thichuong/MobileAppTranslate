@@ -43,13 +43,17 @@ class LanguageSelector extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                Text(
-                  _getLanguageName(selectedLanguage),
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    _getLanguageName(selectedLanguage),
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 4),
                 const Icon(
                   Icons.keyboard_arrow_down_rounded,
                   size: 20,
