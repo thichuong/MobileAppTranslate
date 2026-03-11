@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart';
+import '../../../services/vision_service.dart';
 import 'coordinates_translator.dart';
 
 class ObjectDetectorPainter extends CustomPainter {
@@ -15,10 +16,12 @@ class ObjectDetectorPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
+    final Paint boxPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..color = Colors.cyanAccent;
+
+    final Paint bgPaint = Paint()..color = Colors.black87;
 
     for (final object in objects) {
       final rect = Rect.fromLTRB(
@@ -29,26 +32,44 @@ class ObjectDetectorPainter extends CustomPainter {
             object.boundingBox.bottom, rotation, size, absoluteImageSize),
       );
 
-      canvas.drawRect(rect, paint);
+      canvas.drawRect(rect, boxPaint);
 
-      for (final label in object.labels) {
+      // Lọc labels theo confidence threshold và giới hạn số lượng
+      final filteredLabels = object.labels
+          .where((l) => l.confidence >= VisionService.confidenceThreshold)
+          .take(VisionService.maxLabelsPerObject)
+          .toList();
+
+      // Vẽ từng label phía trên bounding box
+      double yOffset = 0;
+      for (final label in filteredLabels) {
+        final text =
+            '${label.text} (${(label.confidence * 100).toStringAsFixed(0)}%)';
         final TextPainter tp = TextPainter(
           text: TextSpan(
-            text:
-                '${label.text} (${(label.confidence * 100).toStringAsFixed(0)}%)',
+            text: text,
             style: const TextStyle(
               color: Colors.cyanAccent,
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              backgroundColor: Colors.black87,
             ),
           ),
           textAlign: TextAlign.left,
           textDirection: TextDirection.ltr,
         );
         tp.layout();
-        tp.paint(canvas, Offset(rect.left, rect.top - 20));
-        break; // Show only the first label
+
+        // Vẽ nền đen cho text
+        final textRect = Rect.fromLTWH(
+          rect.left,
+          rect.top - 20 - yOffset,
+          tp.width + 8,
+          tp.height + 4,
+        );
+        canvas.drawRect(textRect, bgPaint);
+
+        tp.paint(canvas, Offset(rect.left + 4, rect.top - 18 - yOffset));
+        yOffset += tp.height + 6;
       }
     }
   }
