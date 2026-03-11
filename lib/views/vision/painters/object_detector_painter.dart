@@ -52,15 +52,12 @@ class ObjectDetectorPainter extends CustomPainter {
         final String normalizedLabel = label.text.toLowerCase().trim();
         final String translated = translatedLabels[normalizedLabel] ?? "";
         
-        final String displayText = translated.isNotEmpty
-            ? '${label.text} ($translated)'
-            : label.text;
         final String confidenceText = '${(label.confidence * 100).toStringAsFixed(0)}%';
 
         final TextSpan span = TextSpan(
           children: [
             TextSpan(
-              text: "$displayText ",
+              text: "${label.text} ",
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
@@ -75,6 +72,17 @@ class ObjectDetectorPainter extends CustomPainter {
                 fontWeight: FontWeight.w400,
               ),
             ),
+            if (translated.isNotEmpty)
+              TextSpan(
+                text: "\n$translated",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  fontStyle: FontStyle.italic,
+                  height: 1.2,
+                ),
+              ),
           ],
         );
 
@@ -87,9 +95,9 @@ class ObjectDetectorPainter extends CustomPainter {
 
         final labelRect = Rect.fromLTWH(
           rect.left,
-          rect.top - tp.height - 8 - yOffset,
+          rect.top + yOffset,
           tp.width + 12,
-          tp.height + 6,
+          tp.height + 8,
         );
         
         canvas.drawRRect(
@@ -97,7 +105,7 @@ class ObjectDetectorPainter extends CustomPainter {
           labelBgPaint,
         );
 
-        tp.paint(canvas, Offset(rect.left + 6, rect.top - tp.height - 5 - yOffset));
+        tp.paint(canvas, Offset(rect.left + 6, rect.top + 4 + yOffset));
         yOffset += tp.height + 10;
       }
     }

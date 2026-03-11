@@ -183,18 +183,24 @@ class VisionController extends GetxController {
         if (_shouldStopDetection) return;
         
         final processedResults = _smoothTextResults(results);
-        // Translate before showing results
+        // Translate before showing results — paint chỉ xảy ra sau bước này
         await _translateTextBlocks(processedResults);
-        
+        if (_shouldStopDetection) return;
+
+        // Clear kết quả cũ trước khi gán mới
+        recognizedText.value = null;
         recognizedText.value = processedResults;
         _lastRecognizedText = processedResults;
       } else {
         final results = await _visionService.detectObjects(inputImage);
         if (_shouldStopDetection) return;
         
-        // Translate before showing results
+        // Translate before showing results — paint chỉ xảy ra sau bước này
         await _translateObjectLabels(results);
-        
+        if (_shouldStopDetection) return;
+
+        // Clear kết quả cũ trước khi gán mới
+        detectedObjects.clear();
         detectedObjects.value = results;
         _lastDetectedObjects = results;
       }
@@ -208,11 +214,13 @@ class VisionController extends GetxController {
   RecognizedText _smoothTextResults(RecognizedText results) {
     final now = DateTime.now();
     final List<TextBlock> smoothedBlocks = [];
+    final Set<String> currentKeys = {};
 
-    // Update temporal state
+    // 1. Cập nhật smoothing cho blocks trong frame hiện tại
     for (final block in results.blocks) {
       final key = _normalizeText(block.text);
       if (key.isEmpty) continue;
+      currentKeys.add(key);
 
       if (_smoothedRects.containsKey(key)) {
         // Interpolate rect
@@ -229,9 +237,35 @@ class VisionController extends GetxController {
       }
       _lastSeenRects[key] = now;
       _cachedBlocks[key] = block;
+
+      // Thêm block với smoothed rect vào kết quả
+      smoothedBlocks.add(TextBlock(
+        text: block.text,
+        lines: block.lines,
+        boundingBox: _smoothedRects[key]!,
+        recognizedLanguages: block.recognizedLanguages,
+        cornerPoints: block.cornerPoints,
+      ));
     }
 
-    // Clean up old rects
+    // 2. Thêm ghost blocks (chỉ cho key KHÔNG có trong frame hiện tại) để chống flicker
+    _lastSeenRects.forEach((key, lastSeen) {
+      if (currentKeys.contains(key)) return; // Đã thêm ở bước 1
+      if (now.difference(lastSeen) > _rectDecayDuration) return; // Quá cũ
+
+      final cachedBlock = _cachedBlocks[key];
+      if (cachedBlock == null) return;
+
+      smoothedBlocks.add(TextBlock(
+        text: cachedBlock.text,
+        lines: cachedBlock.lines,
+        boundingBox: _smoothedRects[key]!,
+        recognizedLanguages: cachedBlock.recognizedLanguages,
+        cornerPoints: cachedBlock.cornerPoints,
+      ));
+    });
+
+    // 3. Dọn dẹp các key quá cũ
     final keysToRemove = <String>[];
     _lastSeenRects.forEach((key, lastSeen) {
       if (now.difference(lastSeen) > _rectDecayDuration) {
@@ -243,18 +277,6 @@ class VisionController extends GetxController {
       _smoothedRects.remove(key);
       _cachedBlocks.remove(key);
     }
-
-    // Reconstruct RecognizedText using smoothed rects AND include recently seen blocks to prevent flicker
-    _lastSeenRects.forEach((key, _) {
-      final cachedBlock = _cachedBlocks[key]!;
-      smoothedBlocks.add(TextBlock(
-        text: cachedBlock.text,
-        lines: cachedBlock.lines,
-        boundingBox: _smoothedRects[key]!,
-        recognizedLanguages: cachedBlock.recognizedLanguages,
-        cornerPoints: cachedBlock.cornerPoints,
-      ));
-    });
 
     return RecognizedText(text: results.text, blocks: smoothedBlocks);
   }
@@ -314,6 +336,11 @@ class VisionController extends GetxController {
     try {
       isActionBusy.value = true;
       _shouldStopDetection = true;
+
+      // Clear smoothing caches — ảnh tĩnh không cần ghost blocks
+      _smoothedRects.clear();
+      _lastSeenRects.clear();
+      _cachedBlocks.clear();
 
       // Lấy ngay kết quả cuối cùng từ cache
       if (mode.value == VisionMode.text) {
