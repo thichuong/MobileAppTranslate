@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/translation_service.dart';
 import '../services/speech_service.dart';
 import '../services/permission_service.dart';
+import '../utils/language_utils.dart';
 
 class TranslateController extends GetxController {
   final TranslationService _translationService = Get.find<TranslationService>();
@@ -96,10 +97,12 @@ class TranslateController extends GetxController {
       return;
     }
 
+
+    final String localeId = LanguageUtils.getBCP47(sourceLanguage.value);
     await _speechService.startListening((recognizedWords) {
       textEditingController.text = recognizedWords;
       inputText.value = recognizedWords;
-    });
+    }, localeId: localeId);
   }
 
   Future<void> stopVoiceTranslation() async {
@@ -108,9 +111,7 @@ class TranslateController extends GetxController {
 
   Future<void> speakResult() async {
     if (translatedText.value.isNotEmpty) {
-      // Extract BCP47 code from TranslateLanguage (approximate)
-      // Most language codes in ML Kit match the suffix of the enum
-      String langCode = targetLanguage.value.toString().split('.').last;
+      String langCode = LanguageUtils.getBCP47(targetLanguage.value);
       await _speechService.speak(translatedText.value, langCode);
     }
   }

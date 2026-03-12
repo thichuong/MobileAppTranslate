@@ -14,10 +14,11 @@ class SpeechService extends GetxService {
     await _flutterTts.setPitch(1.0);
   }
 
-  Future<void> startListening(Function(String) onResult) async {
+  Future<void> startListening(Function(String) onResult, {String? localeId}) async {
     if (await _speechToText.initialize()) {
       isListening.value = true;
       await _speechToText.listen(
+        localeId: localeId,
         onResult: (result) {
           if (result.finalResult) {
             isListening.value = false;
