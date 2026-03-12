@@ -1,0 +1,30 @@
+# Uncomment this line to define a global platform for your project
+platform :ios, '13.0'
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+
+  # ML Kit Text Recognition for non-Latin scripts
+  pod 'GoogleMLKit/TextRecognitionChinese'
+  pod 'GoogleMLKit/TextRecognitionDevanagari'
+  pod 'GoogleMLKit/TextRecognitionJapanese'
+  pod 'GoogleMLKit/TextRecognitionKorean'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
+    # Required for some ML Kit pods
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+    end
+  end
+end

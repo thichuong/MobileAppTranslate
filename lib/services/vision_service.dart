@@ -30,6 +30,7 @@ class VisionService extends GetxService {
   TextRecognizer? _textRecognizer;
   ObjectDetector? _objectDetector;
   EfficientNetModel _currentModel = EfficientNetModel.lite4;
+  TextRecognitionScript _currentScript = TextRecognitionScript.latin;
 
   // Confidence threshold và max labels — dùng ở UI layer để lọc kết quả
   static const double confidenceThreshold = 0.5;
@@ -37,9 +38,18 @@ class VisionService extends GetxService {
 
   EfficientNetModel get currentModel => _currentModel;
 
-  /// Khởi tạo Text Recognizer nếu chưa có
-  void _initTextRecognizer() {
-    _textRecognizer ??= TextRecognizer();
+  /// Khởi tạo Text Recognizer với script được chỉ định
+  Future<void> initTextRecognizer(
+      {TextRecognitionScript script = TextRecognitionScript.latin}) async {
+    if (_textRecognizer != null && _currentScript != script) {
+      await _textRecognizer?.close();
+      _textRecognizer = null;
+    }
+
+    if (_textRecognizer == null) {
+      _currentScript = script;
+      _textRecognizer = TextRecognizer(script: _currentScript);
+    }
   }
 
   /// Khởi tạo Object Detector với model được chỉ định
@@ -86,14 +96,16 @@ class VisionService extends GetxService {
   }
 
   /// Recognize text (Stream mode)
-  Future<RecognizedText> recognizeText(InputImage inputImage) async {
-    _initTextRecognizer();
+  Future<RecognizedText> recognizeText(InputImage inputImage,
+      {TextRecognitionScript? script}) async {
+    await initTextRecognizer(script: script ?? _currentScript);
     return await _textRecognizer!.processImage(inputImage);
   }
 
   /// Recognize text (Single image mode)
-  Future<RecognizedText> recognizeTextSingle(InputImage inputImage) async {
-    _initTextRecognizer();
+  Future<RecognizedText> recognizeTextSingle(InputImage inputImage,
+      {TextRecognitionScript? script}) async {
+    await initTextRecognizer(script: script ?? _currentScript);
     return await _textRecognizer!.processImage(inputImage);
   }
 

@@ -82,6 +82,21 @@ class VisionController extends GetxController with VisionSmoothingMixin {
     sourceTranslatedLabels.clear();
   }
 
+  TextRecognitionScript _getScriptFromLanguage(TranslateLanguage lang) {
+    switch (lang) {
+      case TranslateLanguage.japanese:
+        return TextRecognitionScript.japanese;
+      case TranslateLanguage.korean:
+        return TextRecognitionScript.korean;
+      case TranslateLanguage.chinese:
+        return TextRecognitionScript.chinese;
+      case TranslateLanguage.hindi:
+        return TextRecognitionScript.devanagiri;
+      default:
+        return TextRecognitionScript.latin;
+    }
+  }
+
   Future<void> startLiveFeed() async {
     isLive.value = true;
     final settings = Get.find<SettingsController>();
@@ -187,7 +202,8 @@ class VisionController extends GetxController with VisionSmoothingMixin {
 
     try {
       if (mode.value == VisionMode.text) {
-        final results = await _visionService.recognizeText(inputImage);
+        final script = _getScriptFromLanguage(_translateController.sourceLanguage.value);
+        final results = await _visionService.recognizeText(inputImage, script: script);
         if (_shouldStopDetection) return;
         
         final processedResults = smoothTextResults(results);
@@ -342,7 +358,8 @@ class VisionController extends GetxController with VisionSmoothingMixin {
 
     try {
       if (mode.value == VisionMode.text) {
-        final results = await _visionService.recognizeTextSingle(inputImage);
+        final script = _getScriptFromLanguage(_translateController.sourceLanguage.value);
+        final results = await _visionService.recognizeTextSingle(inputImage, script: script);
         await _translateTextBlocks(results);
         recognizedText.value = results;
       } else {
