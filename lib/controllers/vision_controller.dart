@@ -13,10 +13,13 @@ import '../services/vision_service.dart';
 import '../services/translation_service.dart';
 import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import 'settings_controller.dart';
+import '../utils/image_utils.dart';
+import 'mixins/vision_smoothing_mixin.dart';
+
 
 enum VisionMode { text, object }
 
-class VisionController extends GetxController {
+class VisionController extends GetxController with VisionSmoothingMixin {
   final CameraService _cameraService = Get.find<CameraService>();
   final VisionService _visionService = Get.find<VisionService>();
   final TranslationService _translationService = Get.find<TranslationService>();
@@ -44,12 +47,6 @@ class VisionController extends GetxController {
   final RxMap<String, String> translatedLabels = <String, String>{}.obs; // Primary (Target)
   final RxMap<String, String> sourceTranslatedLabels = <String, String>{}.obs; // For Object Detection (Input)
 
-  // Smoothing and temporal tracking
-  final Map<String, Rect> _smoothedRects = {};
-  final Map<String, DateTime> _lastSeenRects = {};
-  final Map<String, TextBlock> _cachedBlocks = {}; // Store full blocks for ghosting
-  static const Duration _rectDecayDuration = Duration(milliseconds: 500);
-  static const double _smoothingFactor = 0.4; // Low value = more smoothing
 
   // Caching for immediate capture feedback
   RecognizedText? _lastRecognizedText;
@@ -175,7 +172,11 @@ class VisionController extends GetxController {
   Future<void> _processFrame(CameraImage image) async {
     _isDetecting.value = true;
 
-    final inputImage = _inputImageFromCameraImage(image);
+    final inputImage = ImageUtils.inputImageFromCameraImage(
+      image: image,
+      controller: _cameraService.controller!,
+      cameras: _cameraService.cameras,
+    );
     if (inputImage == null || _shouldStopDetection) {
       _isDetecting.value = false;
       return;
@@ -189,7 +190,7 @@ class VisionController extends GetxController {
         final results = await _visionService.recognizeText(inputImage);
         if (_shouldStopDetection) return;
         
-        final processedResults = _smoothTextResults(results);
+        final processedResults = smoothTextResults(results);
         // Translate before showing results — paint chỉ xảy ra sau bước này
         await _translateTextBlocks(processedResults);
         if (_shouldStopDetection) return;
@@ -218,83 +219,12 @@ class VisionController extends GetxController {
     }
   }
 
-  RecognizedText _smoothTextResults(RecognizedText results) {
-    final now = DateTime.now();
-    final List<TextBlock> smoothedBlocks = [];
-    final Set<String> currentKeys = {};
-
-    // 1. Cập nhật smoothing cho blocks trong frame hiện tại
-    for (final block in results.blocks) {
-      final key = _normalizeText(block.text);
-      if (key.isEmpty) continue;
-      currentKeys.add(key);
-
-      if (_smoothedRects.containsKey(key)) {
-        // Interpolate rect
-        final oldRect = _smoothedRects[key]!;
-        final newRect = block.boundingBox;
-        _smoothedRects[key] = Rect.fromLTRB(
-          _lerp(oldRect.left, newRect.left, _smoothingFactor),
-          _lerp(oldRect.top, newRect.top, _smoothingFactor),
-          _lerp(oldRect.right, newRect.right, _smoothingFactor),
-          _lerp(oldRect.bottom, newRect.bottom, _smoothingFactor),
-        );
-      } else {
-        _smoothedRects[key] = block.boundingBox;
-      }
-      _lastSeenRects[key] = now;
-      _cachedBlocks[key] = block;
-
-      // Thêm block với smoothed rect vào kết quả
-      smoothedBlocks.add(TextBlock(
-        text: block.text,
-        lines: block.lines,
-        boundingBox: _smoothedRects[key]!,
-        recognizedLanguages: block.recognizedLanguages,
-        cornerPoints: block.cornerPoints,
-      ));
-    }
-
-    // 2. Thêm ghost blocks (chỉ cho key KHÔNG có trong frame hiện tại) để chống flicker
-    _lastSeenRects.forEach((key, lastSeen) {
-      if (currentKeys.contains(key)) return; // Đã thêm ở bước 1
-      if (now.difference(lastSeen) > _rectDecayDuration) return; // Quá cũ
-
-      final cachedBlock = _cachedBlocks[key];
-      if (cachedBlock == null) return;
-
-      smoothedBlocks.add(TextBlock(
-        text: cachedBlock.text,
-        lines: cachedBlock.lines,
-        boundingBox: _smoothedRects[key]!,
-        recognizedLanguages: cachedBlock.recognizedLanguages,
-        cornerPoints: cachedBlock.cornerPoints,
-      ));
-    });
-
-    // 3. Dọn dẹp các key quá cũ
-    final keysToRemove = <String>[];
-    _lastSeenRects.forEach((key, lastSeen) {
-      if (now.difference(lastSeen) > _rectDecayDuration) {
-        keysToRemove.add(key);
-      }
-    });
-    for (final key in keysToRemove) {
-      _lastSeenRects.remove(key);
-      _smoothedRects.remove(key);
-      _cachedBlocks.remove(key);
-    }
-
-    return RecognizedText(text: results.text, blocks: smoothedBlocks);
-  }
-
-  double _lerp(double a, double b, double t) => a + (b - a) * t;
 
   Future<void> _translateTextBlocks(RecognizedText results) async {
     final futures = <Future>[];
     for (final block in results.blocks) {
       // Normalize text: lowercase, trim, remove non-alphanumeric at start/end
-      final normalized = _normalizeText(block.text);
+      final normalized = normalizeText(block.text);
       if (normalized.isEmpty || translatedTextBlocks.containsKey(normalized)) continue;
 
       // Throttle: avoid too many items
@@ -309,12 +239,6 @@ class VisionController extends GetxController {
     await Future.wait(futures);
   }
 
-  String _normalizeText(String text) {
-    // Basic normalization to avoid redundant translations for slight variations
-    return text.trim()
-        .replaceAll(RegExp(r'[ \t]+'), ' ') // Normalize spaces
-        .toLowerCase();
-  }
 
   Future<void> _translateObjectLabels(List<DetectedObject> objects) async {
     final labelsToTranslate = objects
@@ -352,16 +276,16 @@ class VisionController extends GetxController {
 
   Future<void> captureImage() async {
     if (_cameraService.controller == null ||
-        !_cameraService.controller!.value.isInitialized) return;
+        !_cameraService.controller!.value.isInitialized) {
+      return;
+    }
 
     try {
       isActionBusy.value = true;
       _shouldStopDetection = true;
 
       // Clear smoothing caches — ảnh tĩnh không cần ghost blocks
-      _smoothedRects.clear();
-      _lastSeenRects.clear();
-      _cachedBlocks.clear();
+      clearSmoothingCaches();
 
       // Lấy ngay kết quả cuối cùng từ cache
       if (mode.value == VisionMode.text) {
@@ -431,48 +355,6 @@ class VisionController extends GetxController {
     }
   }
 
-  InputImage? _inputImageFromCameraImage(CameraImage image) {
-    if (_cameraService.controller == null) return null;
-
-    final camera = _cameraService.cameras.firstWhere(
-      (c) => c.lensDirection == CameraLensDirection.back,
-      orElse: () => _cameraService.cameras.first,
-    );
-
-    final sensorOrientation = camera.sensorOrientation;
-    InputImageRotation? rotation;
-    if (GetPlatform.isAndroid) {
-      var rotationCompensation =
-          _cameraService.controller!.description.sensorOrientation;
-      if (_cameraService.controller!.description.lensDirection ==
-          CameraLensDirection.front) {
-        rotationCompensation = (rotationCompensation + 0) % 360;
-      } else {
-        rotationCompensation = (rotationCompensation - 0 + 360) % 360;
-      }
-      rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
-    } else if (GetPlatform.isIOS) {
-      rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
-    }
-
-    if (rotation == null) return null;
-
-    final format = InputImageFormatValue.fromRawValue(image.format.raw);
-    if (format == null) return null;
-
-    if (image.planes.isEmpty) return null;
-    final plane = image.planes.first;
-
-    return InputImage.fromBytes(
-      bytes: plane.bytes,
-      metadata: InputImageMetadata(
-        size: Size(image.width.toDouble(), image.height.toDouble()),
-        rotation: rotation,
-        format: format,
-        bytesPerRow: plane.bytesPerRow,
-      ),
-    );
-  }
 
   @override
   void onClose() {
