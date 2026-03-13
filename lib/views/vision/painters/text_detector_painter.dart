@@ -26,7 +26,7 @@ class TextDetectorPainter extends CustomPainter {
     final Paint borderPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
-      ..color = Colors.lightGreenAccent.withOpacity(0.5);
+      ..color = Colors.lightGreenAccent.withValues(alpha: 0.5);
 
     // 1. Tính toán tất cả rects trước để dedup
     final List<_BlockEntry> entries = [];

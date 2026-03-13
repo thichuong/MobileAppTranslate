@@ -10,6 +10,7 @@ class ObjectDetectorPainter extends CustomPainter {
     this.rotation,
     this.translatedLabels,
     this.sourceTranslatedLabels,
+    this.isSourceEnglish,
   );
 
   final List<DetectedObject> objects;
@@ -17,6 +18,7 @@ class ObjectDetectorPainter extends CustomPainter {
   final InputImageRotation rotation;
   final Map<String, String> translatedLabels;
   final Map<String, String> sourceTranslatedLabels;
+  final bool isSourceEnglish;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -26,7 +28,7 @@ class ObjectDetectorPainter extends CustomPainter {
       ..color = Colors.cyanAccent;
 
     final Paint labelBgPaint = Paint()
-      ..color = Colors.black.withOpacity(0.7)
+      ..color = Colors.black.withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
 
     for (final object in objects) {
@@ -53,39 +55,40 @@ class ObjectDetectorPainter extends CustomPainter {
       for (final label in filteredLabels) {
         final String normalizedLabel = label.text.toLowerCase().trim();
         final String translated = translatedLabels[normalizedLabel] ?? "";
-        final String sourceTranslated = sourceTranslatedLabels[normalizedLabel] ?? label.text;
-        
-        final String confidenceText = '${(label.confidence * 100).toStringAsFixed(0)}%';
+        final String sourceTranslated =
+            sourceTranslatedLabels[normalizedLabel] ?? "";
+        final String confidenceText =
+            ' ${(label.confidence * 100).toStringAsFixed(0)}%';
 
         final TextSpan span = TextSpan(
           children: [
+            if (sourceTranslated.isNotEmpty) ...[
+              TextSpan(
+                text: "$sourceTranslated",
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              const TextSpan(text: "\n"),
+            ],
             TextSpan(
-              text: "$sourceTranslated ",
+              text: translated.isNotEmpty ? translated : label.text,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
               ),
             ),
             TextSpan(
               text: confidenceText,
               style: TextStyle(
-                color: Colors.cyanAccent.withOpacity(0.8),
+                color: Colors.cyanAccent.withValues(alpha: 0.8),
                 fontSize: 11,
                 fontWeight: FontWeight.w400,
               ),
             ),
-            if (translated.isNotEmpty) ...[
-              TextSpan(
-                text: "\n$translated",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  height: 1.2,
-                ),
-              ),
-            ],
           ],
         );
 

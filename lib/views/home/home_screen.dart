@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import '../../controllers/translate_controller.dart';
+import '../../bindings/vision_binding.dart';
 import '../vision/vision_detector_screen.dart';
 import 'settings_screen.dart';
 import 'widgets/language_selector.dart';
@@ -145,7 +146,10 @@ class HomeScreen extends GetView<TranslateController> {
           onTap: () async {
             final granted = await controller.requestCameraPermission();
             if (granted) {
-              Get.to(() => const VisionDetectorScreen());
+              Get.to(
+                () => const VisionDetectorScreen(),
+                binding: VisionBinding(),
+              );
             } else {
               Get.snackbar("Permission Denied",
                   "Camera access is required for vision features.");

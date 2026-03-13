@@ -3,8 +3,10 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/vision_controller.dart';
+import '../../../controllers/vision_analyzer_controller.dart';
 import '../../../controllers/translate_controller.dart';
 import '../../../services/camera_service.dart';
+import 'package:google_mlkit_translation/google_mlkit_translation.dart';
 import 'painters/text_detector_painter.dart';
 import 'painters/object_detector_painter.dart';
 
@@ -91,6 +93,7 @@ class VisionDetectorScreen extends StatelessWidget {
             controller.imageRotation!,
             controller.translatedLabels,
             controller.sourceTranslatedLabels,
+            controller.sourceLanguage == TranslateLanguage.english,
           );
         }
       }
