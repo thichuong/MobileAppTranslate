@@ -1,39 +1,61 @@
 # Mobile App Translate
 
-Ứng dụng Flutter hỗ trợ dịch thuật qua camera và nhận diện vật thể với hiệu suất cao.
+A versatile, high-performance Flutter application for real-time translation and visual understanding. This app leverages on-device machine learning to provide instant text recognition, object detection, and multi-lingual translation without requiring a constant internet connection.
 
-## ✨ Tính năng nổi bật (Vision)
+---
 
-- **Dịch văn bản trực tiếp (Text Vision)**: Nhận diện và dịch văn bản trực gian thực với giao diện overlay mượt mà.
-- **Nhận diện vật thể (Object Detection)**: Phân loại vật thể nhanh chóng qua camera.
-- **Chụp ảnh thông minh**: Chuyển đổi mượt mà từ preview trực tiếp sang ảnh tĩnh mà không làm mất kết quả nhận diện.
-- **Tối ưu hiệu suất**:
-  - Live Camera Preview chạy ở **60fps**.
-  - Pipeline xử lý ML chạy ở **~5fps** để tiết kiệm pin và tránh lag UI.
-  - Phân tách luồng xử lý và hiển thị.
+## ✨ Key Capabilities
+
+- **🚀 Real-Time Vision**: 
+  - **Live OCR Translation**: Instant text recognition and overlay translation directly in the AR camera view.
+  - **Object Detection**: Intelligent classification with bilingual (source/target) labels.
+- **🗣️ Voice & Text Hub**:
+  - **Conversational STT**: Speech-to-text translation with support for 50+ locales.
+  - **Natural TTS**: Listen to translations with high-quality text-to-speech.
+- **🖼️ Static Analysis**: 
+  - Analyze captured photos or import images from the gallery for deep offline processing.
+- **⚡ Optimized Pipeline**:
+  - **60 FPS** Camera Preview.
+  - Throttled ML inference (~5-10 FPS) for battery efficiency and thermal management.
+
+---
 
 ## 🛠 Tech Stack
 
-- **Framework**: Flutter (GetX for State Management)
-- **ML Engine**: Google ML Kit (Object Detection, Text Recognition, Translation)
-- **Camera**: `camera` package với các tùy chỉnh tối ưu cho Android/iOS.
-- **Design**: Modern Dark UI (Vibrant colors, smooth animations).
-
-## 🚀 Cấu trúc dự án
-
-- `lib/controllers/`: Chứa logic điều khiển (VisionController, SettingsController).
-- `lib/services/`: Các dịch vụ xử lý nền (CameraService, VisionService).
-- `lib/views/`: Giao diện người dùng.
-- `docs/`: Tài liệu kiến trúc dự án (Xem [Architecture.md](docs/Architecture.md)).
-
-## 📦 Cài đặt
-
-1. Đảm bảo đã cài đặt Flutter SDK.
-2. Chạy `flutter pub get` để tải dependencies.
-3. Chạy lệnh:
-```bash
-flutter run
-```
+- **Framework**: [Flutter](https://flutter.dev/) (GetX for State Management)
+- **ML Engine**: [Google ML Kit](https://developers.google.com/ml-kit) (Object Detection, Text Recognition, Translation)
+- **Custom Models**: EfficientNet-Lite (TFLite integration)
+- **Design System**: Modern Dark Mode UI with vibrant accents and micro-animations.
 
 ---
-*Phát triển bởi team Antigravity.*
+
+## 📂 Project Documentation
+
+Detailed technical documentation is available in the `docs/` directory:
+
+1.  **[System Architecture](docs/Architecture.md)**: Explore the modular GetX design, service layers, and ML processing pipeline.
+2.  **[Features & Specifications](docs/Features.md)**: Deep dive into all user-facing functionalities and technical requirements.
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Flutter SDK (Latest stable version)
+- Android Studio / Xcode
+
+### Installation
+
+1.  Clone the repository and navigate to the project root.
+2.  Install dependencies:
+    ```bash
+    flutter pub get
+    ```
+3.  Run the application:
+    ```bash
+    flutter run
+    ```
+
+---
+
+*Developed with ❤️ by the Antigravity team.*

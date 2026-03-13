@@ -1,36 +1,84 @@
-# Vision System Architecture
+# Project Architecture: MobileAppTranslate
 
-Hệ thống thị giác (Vision) được thiết kế để cung cấp trải nghiệm real-time mượt mà (60fps) trong khi vẫn duy trì hiệu suất xử lý ML ổn định và tiết kiệm năng lượng.
+This document describes the architectural design of the MobileAppTranslate application, a cross-platform Flutter app for real-time translation and object detection.
 
-## 1. Pipeline Xử lý Camera & Detection
+## High-Level Architecture
 
-Để tối ưu hóa, pipeline được chia thành hai luồng độc lập:
+The application follows a **Modular Layered Architecture** powered by the **GetX** state management framework. This separation ensures scalability, testability, and efficient resource management, especially for hardware-intensive tasks like camera streaming and ML inference.
 
-### Camera Preview (Native)
-- Sử dụng widget `CameraPreview` của thư viện `camera`.
-- Chạy ở mức **60 FPS** (native code), không bị ảnh hưởng bởi Dart event loop.
-- Luôn đảm bảo độ mượt tối đa cho người dùng.
+```mermaid
+graph TD
+    subgraph UI Layer
+        V[Views/Screens]
+        P[Painters/Overlays]
+    end
 
-### Detection Processing (Throttled)
-- Chạy ở mức **~5 FPS** (mỗi 200ms xử lý 1 frame).
-- Sử dụng `Stopwatch` trong `VisionController` để điều phối (Throttle).
-- **Callback `_onCameraFrame`**: Chạy 60 lần/giây nhưng trả về ngay lập tức (~1μs) nếu chưa đủ thời gian interval hoặc đang bận xử lý (isBusy).
-- **Function `_processFrame`**: Chỉ được gọi khi frame vượt qua bộ lọc throttle. Thực hiện chuyển đổi `CameraImage` sang `InputImage` và gọi ML Kit.
+    subgraph Controller Layer
+        VC[VisionController]
+        TC[TranslateController]
+        VAC[VisionAnalyzerController]
+        CMC[CameraManagerController]
+    end
 
-## 2. Giao diện Live vs Capture
+    subgraph Service Layer
+        VS[VisionService - ML Kit]
+        TS[TranslationService]
+        SS[SpeechService]
+        CS[CameraService]
+    end
 
-Hệ thống đảm bảo trải nghiệm thống nhất giữa chế độ live (camera) và chế độ xem ảnh chụp (capture):
+    V --> VC
+    V --> TC
+    VC --> VAC
+    VC --> CMC
+    VAC --> VS
+    VAC --> TS
+    TC --> TS
+    TC --> SS
+    CMC --> CS
+    P -.-> VAC
+```
 
-- **Kích thước (Fit)**: Cả `CameraPreview` và `Image.file` (chế độ xem tĩnh) đều sử dụng `BoxFit.cover` để chiếm toàn bộ vùng hiển thị được chỉ định.
-- **Tọa độ (Coordinates)**: Vì kích thước hiển thị khớp nhau, các bounding boxes (từ OCR/Object Detection) được vẽ bằng cùng một hệ tọa độ trên toàn màn hình.
-- **Chuyển tải kết quả**: Khi người dùng nhấn "Chụp ảnh", `VisionController` chủ động giữ lại kết quả detection cuối cùng của luồng live. Hệ thống không thực hiện redetection trên ảnh chụp để tránh độ trễ và giật lag, tạo cảm giác chuyển cảnh tức thời.
+---
 
-## 3. Quản lý Trạng thái (GetX)
+## 🏗 Core Layers
 
-- **`VisionController`**: Điều phối chính, quản lý vòng đời camera, pipeline xử lý và kết quả hiển thị.
-- **`VisionService`**: Wrapper cho Google ML Kit (Text Translation, Object Detection). Cung cấp các phương thức `detectObjects()` (stream) và `detectObjectsSingle()` (cấu hình chuyên biệt cho ảnh tĩnh).
-- **`CameraService`**: Quản lý `CameraController` và các thiết lập phần cứng.
+### 1. Service Layer (`lib/services/`)
+Low-level wrappers around platform-specific plugins and hardware.
+- **`VisionService`**: Configures and manages Google ML Kit recognizers (Text, Object Detection) and custom TFLite models (EfficientNet-Lite).
+- **`TranslationService`**: Handles on-device translation models and lifecycle.
+- **`CameraService`**: Manages camera hardware initialization and configuration.
+- **`SpeechService`**: Interfaces with STT (Speech-to-Text) and TTS (Text-to-Speech) engines.
 
-## 4. Fixes & Optimizations
-- **Android Crash Fix**: Dừng hoàn toàn image stream trước khi thực hiện `takePicture()`.
-- **Memory Efficiency**: Sử dụng `Stopwatch` (không delegate object) thay vì `DateTime` để giảm áp lực lên Garbage Collector (GC).
+### 2. Controller Layer (`lib/controllers/`)
+ Orchestrates business logic and maintains observable state.
+- **`VisionController`**: The primary coordinator for camera-based features (Live feed, capture, gallery pick).
+- **`VisionAnalyzerController`**: Manages the ML processing pipeline, result smoothing, and translation of detected entities.
+- **`TranslateController`**: Manages text-based translation, history, and voice interactions.
+- **`CameraManagerController`**: Handles the lifecycle and stream of the `CameraController`.
+
+### 3. UI Layer (`lib/views/`)
+Declarative UI components and custom painters.
+- **Vision Views**: Live camera preview with interactive overlays.
+- **Painters**: High-performance `CustomPainter` implementations (`TextDetectorPainter`, `ObjectDetectorPainter`) that render detection boxes and translated text directly over the camera frames.
+
+---
+
+## ⚙️ ML Pipeline Execution
+
+The application uses an **Event-Driven Pipeline** to process camera frames without blocking the UI thread (60fps UI, ~5-10fps ML).
+
+1. **Input**: `CameraManagerController` starts an image stream.
+2. **Preprocessing**: `ImageUtils` converts `CameraImage` (YUV/BGRA) to `InputImage` (ML Kit format).
+3. **Inference**: `VisionAnalyzerController` sends frames to `VisionService` at a throttled interval (managed by `SettingsController`).
+4. **Post-processing**: `VisionResultsProcessor` smooths jittery bounding boxes.
+5. **Translation**: Labels/Text are translated asynchronously via `TranslationService`.
+6. **Output**: UI Observers trigger a repaint of the `CustomPainter` with updated coordinates and translations.
+
+---
+
+## 🛠 Tech Stack
+- **Flutter**: UI Framework.
+- **GetX**: Reactive state management and dependency injection.
+- **Google ML Kit**: On-device machine learning (OCR, Detection, Transition).
+- **EfficientNet-Lite**: Custom TFLite models for specialized object classification.
