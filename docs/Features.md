@@ -13,11 +13,13 @@ MobileAppTranslate is an all-in-one on-device intelligence tool designed for sea
 ### 2. Live OCR Vision (Live Translation)
 - **Real-time Detection**: Recognizes text within the camera view at high speed.
 - **In-place Overlay**: Replaces source text with translated text directly in the augmented reality view.
+- **Spatial Stability**: Uses an IoU-based tracking engine to anchor translation boxes to real-world coordinates, eliminating jitter.
+- **Intelligent Cooldown**: Configurable OCR stabilization that prevents "flickering" translations by locking results for a set duration.
 - **Multi-Script Support**: Optimized recognition for Latin, Japanese, Chinese, Korean, and Devanagari.
-- **Smooth Rendering**: Predictive smoothing algorithm to prevent UI jitter.
 
 ### 3. Intelligent Object Detection
-- **Bilingual Labeling**: Detects objects and displays names in both Source and Target languages simultaneously.
+- **Bilingual Labeling**: Detects objects and displays names in both Source (IN) and Target (OUT) languages simultaneously.
+- **English-First Pipeline**: Optimized to classify objects in English and provide dual translations for maximum accuracy.
 - **Custom Models**: Supports 5 tiers of EfficientNet-Lite (Lite0 to Lite4) to balance speed and accuracy based on device capability.
 - **Confidence Visualization**: Real-time confidence scores for every detected entity.
 
@@ -50,4 +52,4 @@ MobileAppTranslate is an all-in-one on-device intelligence tool designed for sea
 ## 🧭 Navigation & UX
 - **Home Screen**: Fast access to text and voice translation.
 - **Vision Hub**: Toggle between OCR and Object Detection modes.
-- **Settings**: Adjust ML model tiers, processing FPS, and language preferences.
+- **Settings**: Adjust ML model tiers, processing FPS, and **OCR Cooldown (ms)** for personalized performance balancing.

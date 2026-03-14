@@ -71,9 +71,12 @@ The application uses an **Event-Driven Pipeline** to process camera frames witho
 1. **Input**: `CameraManagerController` starts an image stream.
 2. **Preprocessing**: `ImageUtils` converts `CameraImage` (YUV/BGRA) to `InputImage` (ML Kit format).
 3. **Inference**: `VisionAnalyzerController` sends frames to `VisionService` at a throttled interval (managed by `SettingsController`).
-4. **Post-processing**: `VisionResultsProcessor` smooths jittery bounding boxes.
+4. **Spatial Tracking**: `VisionResultsProcessor` maps incoming results to existing IDs using **Intersection over Union (IoU)**.
+    - **Smoothing**: Bounding boxes are interpolated (LERP) across frames to eliminate jitter.
+    - **OCR Cooldown**: A configurable temporal lock (default 1500ms) stabilizes the translation key even if the OCR text slightly varies (e.g., "Hello" vs "He1lo").
+    - **Ghosting**: Briefly preserves lost text blocks to prevent flickering during minor camera occlusions.
 5. **Translation**: Labels/Text are translated asynchronously via `TranslationService`.
-6. **Output**: UI Observers trigger a repaint of the `CustomPainter` with updated coordinates and translations.
+6. **Output**: UI Observers trigger a repaint of the `CustomPainter` with updated coordinates and stable translations.
 
 ---
 

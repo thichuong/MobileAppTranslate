@@ -7,8 +7,8 @@ A versatile, high-performance Flutter application for real-time translation and 
 ## ✨ Key Capabilities
 
 - **🚀 Real-Time Vision**: 
-  - **Live OCR Translation**: Instant text recognition and overlay translation directly in the AR camera view.
-  - **Object Detection**: Intelligent classification with bilingual (source/target) labels.
+  - **Stable AR Translation**: High-performance OCR with **Spatial Tracking (IoU)** and **Intelligent Cooldown** for jitter-free overlays.
+  - **Smart Object Detection**: Dual-label (Source/Target) classification powered by EfficientNet-Lite.
 - **🗣️ Voice & Text Hub**:
   - **Conversational STT**: Speech-to-text translation with support for 50+ locales.
   - **Natural TTS**: Listen to translations with high-quality text-to-speech.
