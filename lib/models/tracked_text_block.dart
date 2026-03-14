@@ -10,6 +10,7 @@ class TrackedTextBlock {
   final List<String> recognizedLanguages;
   final List<Point<int>> cornerPoints;
   final DateTime lastSeen;
+  final DateTime lastOcrTime; // Added for cooldown management
 
   TrackedTextBlock({
     required this.id,
@@ -19,6 +20,7 @@ class TrackedTextBlock {
     required this.recognizedLanguages,
     required this.cornerPoints,
     required this.lastSeen,
+    required this.lastOcrTime,
   });
 
   TrackedTextBlock copyWith({
@@ -26,6 +28,7 @@ class TrackedTextBlock {
     String? text,
     List<TextLine>? lines,
     DateTime? lastSeen,
+    DateTime? lastOcrTime,
   }) {
     return TrackedTextBlock(
       id: id,
@@ -35,6 +38,7 @@ class TrackedTextBlock {
       recognizedLanguages: recognizedLanguages,
       cornerPoints: cornerPoints,
       lastSeen: lastSeen ?? this.lastSeen,
+      lastOcrTime: lastOcrTime ?? this.lastOcrTime,
     );
   }
 

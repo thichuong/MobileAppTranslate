@@ -22,7 +22,7 @@ class TextDetectorPainter extends CustomPainter {
 
     final Paint bgPaint = Paint()
       ..style = PaintingStyle.fill
-      ..color = Colors.black45;
+      ..color = Colors.black.withValues(alpha: 0.85); // Denser background for in-painting
 
     final Paint borderPaint = Paint()
       ..style = PaintingStyle.stroke
@@ -54,10 +54,14 @@ class TextDetectorPainter extends CustomPainter {
       final String translatedText = translatedBlocks[id] ?? "";
       final String displayText = translatedText.isNotEmpty ? translatedText : block.text;
 
-      // Draw background with rounded corners
+      // AR In-painting: Draw the background box to cover original camera text
       final rRect = RRect.fromRectAndRadius(rect, const Radius.circular(4));
       canvas.drawRRect(rRect, bgPaint);
-      canvas.drawRRect(rRect, borderPaint);
+      
+      // Only draw border if we haven't translated yet (visual cue)
+      if (translatedText.isEmpty) {
+        canvas.drawRRect(rRect, borderPaint);
+      }
 
       final TextPainter tp = TextPainter(
         text: TextSpan(

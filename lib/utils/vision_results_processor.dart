@@ -14,9 +14,8 @@ class VisionResultsProcessor {
   static const Duration _rectDecayDuration = Duration(milliseconds: 700);
   
   // Matching thresholds
-  static const double _iouThreshold = 0.4;
-  static const double _fuzzyIouThreshold = 0.1;
-  static const double _levenshteinThreshold = 0.7; // Similarity 0.0 to 1.0
+  static const double _iouThreshold = 0.6; // Increased for tighter spatial tracking
+  static const Duration _ocrCooldown = Duration(milliseconds: 1500); // OCR Freeze duration
 
   final Levenshtein _levenshtein = Levenshtein();
 
@@ -25,7 +24,7 @@ class VisionResultsProcessor {
     final List<TrackedTextBlock> currentFrameTracked = [];
     final List<TextBlock> incomingBlocks = results.blocks;
 
-    // 1. Match incoming blocks to tracked blocks
+    // 1. Match incoming blocks to tracked blocks using IoU
     final Set<int> matchedIncomingIndices = {};
     final Set<String> matchedTrackedIds = {};
 
@@ -40,14 +39,7 @@ class VisionResultsProcessor {
         final iou = _calculateIoU(incoming.boundingBox, tracked.boundingBox);
         double score = iou;
 
-        // If spatial match is weak but exists, try fuzzy text matching
-        if (iou > _fuzzyIouThreshold && iou < _iouThreshold) {
-          final similarity = _calculateTextSimilarity(incoming.text, tracked.text);
-          if (similarity > _levenshteinThreshold) {
-            score = iou + similarity; // Boost score if text matches
-          }
-        }
-
+        // Spatial Match is primary
         if (score > _iouThreshold && score > bestScore) {
           bestScore = score;
           bestMatchId = id;
@@ -58,15 +50,29 @@ class VisionResultsProcessor {
         final tracked = _trackedBlocks[bestMatchId!]!;
         final updatedRect = _lerpRect(tracked.boundingBox, incoming.boundingBox, _smoothingFactor);
         
-        // Stabilize text: if similarity is high, keep the old text to avoid jittering translation keys
-        final similarity = _calculateTextSimilarity(incoming.text, tracked.text);
-        final stabilizedText = similarity > 0.75 ? tracked.text : incoming.text;
+        // OCR Cooldown Mechanism:
+        // If IoU is strong (> 0.6) and we are within cooldown, KEEP the old text.
+        // This avoids flickering translation keys when OCR returns jittery text (e.g. "Hello" -> "He1lo").
+        final bool isWithinCooldown = now.difference(tracked.lastOcrTime) < _ocrCooldown;
+        
+        String stabilizedText = tracked.text;
+        DateTime nextOcrTime = tracked.lastOcrTime;
+
+        if (!isWithinCooldown) {
+          // Cooldown passed, check if text actually changed significantly
+          final similarity = _calculateTextSimilarity(incoming.text, tracked.text);
+          if (similarity < 0.8) { // Text changed enough to update
+             stabilizedText = incoming.text;
+             nextOcrTime = now;
+          }
+        }
 
         final updatedTracked = tracked.copyWith(
           boundingBox: updatedRect,
           text: stabilizedText,
           lines: incoming.lines,
           lastSeen: now,
+          lastOcrTime: nextOcrTime,
         );
         
         _trackedBlocks[bestMatchId!] = updatedTracked;
@@ -90,6 +96,7 @@ class VisionResultsProcessor {
         recognizedLanguages: incoming.recognizedLanguages,
         cornerPoints: incoming.cornerPoints,
         lastSeen: now,
+        lastOcrTime: now,
       );
       _trackedBlocks[id] = newTracked;
       currentFrameTracked.add(newTracked);
