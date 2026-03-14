@@ -6,10 +6,12 @@ class SettingsController extends GetxController {
   static const String _modelKey = 'selected_efficientnet_model';
   static const String _cameraFpsKey = 'camera_fps';
   static const String _processingFpsKey = 'processing_fps';
+  static const String _ocrCooldownKey = 'ocr_cooldown';
   
   final Rx<EfficientNetModel> selectedModel = EfficientNetModel.lite4.obs;
   final RxInt cameraFps = 60.obs;
   final RxInt processingFps = 5.obs;
+  final RxInt ocrCooldown = 1500.obs;
 
   late SharedPreferences _prefs;
 
@@ -29,6 +31,7 @@ class SettingsController extends GetxController {
 
     cameraFps.value = _prefs.getInt(_cameraFpsKey) ?? 60;
     processingFps.value = _prefs.getInt(_processingFpsKey) ?? 5;
+    ocrCooldown.value = _prefs.getInt(_ocrCooldownKey) ?? 1500;
   }
 
   Future<void> setModel(EfficientNetModel model) async {
@@ -47,5 +50,10 @@ class SettingsController extends GetxController {
   Future<void> setProcessingFps(int fps) async {
     processingFps.value = fps;
     await _prefs.setInt(_processingFpsKey, fps);
+  }
+
+  Future<void> setOcrCooldown(int ms) async {
+    ocrCooldown.value = ms;
+    await _prefs.setInt(_ocrCooldownKey, ms);
   }
 }

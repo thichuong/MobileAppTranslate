@@ -15,7 +15,11 @@ class VisionResultsProcessor {
   
   // Matching thresholds
   static const double _iouThreshold = 0.6; // Increased for tighter spatial tracking
-  static const Duration _ocrCooldown = Duration(milliseconds: 1500); // OCR Freeze duration
+  Duration _ocrCooldown = const Duration(milliseconds: 1500); // OCR Freeze duration
+
+  void setOcrCooldown(int ms) {
+    _ocrCooldown = Duration(milliseconds: ms);
+  }
 
   final Levenshtein _levenshtein = Levenshtein();
 

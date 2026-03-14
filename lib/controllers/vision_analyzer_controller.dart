@@ -54,6 +54,10 @@ class VisionAnalyzerController extends GetxController {
     _initTranslator();
     ever(_translateController.sourceLanguage, (_) => _initTranslator());
     ever(_translateController.targetLanguage, (_) => _initTranslator());
+    
+    // Link OCR Cooldown setting to processor
+    processor.setOcrCooldown(_settingsController.ocrCooldown.value);
+    ever(_settingsController.ocrCooldown, (int ms) => processor.setOcrCooldown(ms));
   }
 
   Future<void> _initTranslator() async {

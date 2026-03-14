@@ -46,6 +46,21 @@ class SettingsScreen extends GetView<SettingsController> {
             onChanged: (v) => controller.setProcessingFps(v.toInt()),
             label: (v) => '${v.toInt()} FPS',
           ),
+          const SizedBox(height: 24),
+          _buildSectionHeader('Thời gian chờ OCR (ms)'),
+          const SizedBox(height: 12),
+          FpsSelector(
+            currentValue: controller.ocrCooldown,
+            min: 500,
+            max: 5000,
+            divisions: 9,
+            onChanged: (v) => controller.setOcrCooldown(v.toInt()),
+            label: (v) => '${v.toInt()} ms',
+          ),
+          const SizedBox(height: 16),
+          const InfoNote(
+            text: 'Thời gian chờ lâu giúp giảm nháy hình ảnh khi text bị jitter, nhưng phản hồi chậm hơn khi text thực sự thay đổi.',
+          ),
         ],
       ),
     );
