@@ -9,6 +9,7 @@ import '../controllers/translate_controller.dart';
 import '../services/vision_service.dart';
 import 'camera_manager_controller.dart';
 import 'vision_analyzer_controller.dart' show VisionAnalyzerController, VisionMode;
+import '../models/tracked_text_block.dart';
 
 class VisionController extends GetxController {
   final CameraManagerController _cameraManager = Get.find<CameraManagerController>();
@@ -16,7 +17,7 @@ class VisionController extends GetxController {
   
   // Expose state from sub-controllers
   Rx<VisionMode> get mode => _analyzer.mode;
-  Rx<RecognizedText?> get recognizedText => _analyzer.recognizedText;
+  RxList<TrackedTextBlock> get trackedTextBlocks => _analyzer.trackedTextBlocks;
   RxList<DetectedObject> get detectedObjects => _analyzer.detectedObjects;
   RxMap<String, String> get translatedTextBlocks => _analyzer.translatedTextBlocks;
   RxMap<String, String> get translatedLabels => _analyzer.translatedLabels;
@@ -57,7 +58,7 @@ class VisionController extends GetxController {
         : VisionMode.text;
 
     // Reset results on mode switch
-    _analyzer.recognizedText.value = null;
+    _analyzer.trackedTextBlocks.clear();
     _analyzer.detectedObjects.clear();
 
     if (!isLive.value && imagePath.value != null) {
@@ -69,8 +70,8 @@ class VisionController extends GetxController {
     String textToSend = "";
 
     if (_analyzer.mode.value == VisionMode.text) {
-      if (_analyzer.recognizedText.value != null) {
-        textToSend = _analyzer.recognizedText.value!.text;
+      if (_analyzer.trackedTextBlocks.isNotEmpty) {
+        textToSend = _analyzer.trackedTextBlocks.map((b) => b.text).join("\n");
       }
     } else {
       if (_analyzer.detectedObjects.isNotEmpty) {
@@ -146,7 +147,9 @@ class VisionController extends GetxController {
     final visionService = Get.find<VisionService>();
     if (_analyzer.mode.value == VisionMode.text) {
       final results = await visionService.recognizeTextSingle(inputImage);
-      _analyzer.recognizedText.value = results;
+      // Even for static images, pass through processor to get IDs/TrackedBlocks
+      final tracked = _analyzer.processor.smoothTextResults(results);
+      _analyzer.trackedTextBlocks.assignAll(tracked);
     } else {
       final results = await visionService.detectObjectsSingle(inputImage);
       _analyzer.detectedObjects.assignAll(results);

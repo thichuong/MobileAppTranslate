@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import '../../../models/tracked_text_block.dart';
 import 'coordinates_translator.dart';
 
 class TextDetectorPainter extends CustomPainter {
   TextDetectorPainter(
-    this.recognizedText,
+    this.trackedBlocks,
     this.absoluteImageSize,
     this.rotation,
     this.translatedBlocks,
   );
 
-  final RecognizedText recognizedText;
+  final List<TrackedTextBlock> trackedBlocks;
   final Size absoluteImageSize;
   final InputImageRotation rotation;
   final Map<String, String> translatedBlocks;
@@ -28,49 +29,30 @@ class TextDetectorPainter extends CustomPainter {
       ..strokeWidth = 1.0
       ..color = Colors.lightGreenAccent.withValues(alpha: 0.5);
 
-    // 1. Tính toán tất cả rects trước để dedup
+    // 1. Tính toán tất cả rects trước
     final List<_BlockEntry> entries = [];
-    for (final textBlock in recognizedText.blocks) {
+    for (final block in trackedBlocks) {
       final rect = Rect.fromLTRB(
         translateX(
-            textBlock.boundingBox.left, rotation, size, absoluteImageSize),
+            block.boundingBox.left, rotation, size, absoluteImageSize),
         translateY(
-            textBlock.boundingBox.top, rotation, size, absoluteImageSize),
+            block.boundingBox.top, rotation, size, absoluteImageSize),
         translateX(
-            textBlock.boundingBox.right, rotation, size, absoluteImageSize),
+            block.boundingBox.right, rotation, size, absoluteImageSize),
         translateY(
-            textBlock.boundingBox.bottom, rotation, size, absoluteImageSize),
+            block.boundingBox.bottom, rotation, size, absoluteImageSize),
       );
-      entries.add(_BlockEntry(textBlock, rect));
+      entries.add(_BlockEntry(block, rect));
     }
 
-    // 2. Dedup: loại bỏ các box trùng lặp (IoU > 0.5)
-    final List<_BlockEntry> dedupedEntries = [];
+    // 3. Vẽ các block
     for (final entry in entries) {
-      bool isDuplicate = false;
-      for (final existing in dedupedEntries) {
-        if (_iou(entry.rect, existing.rect) > 0.5) {
-          isDuplicate = true;
-          break;
-        }
-      }
-      if (!isDuplicate) {
-        dedupedEntries.add(entry);
-      }
-    }
-
-    // 3. Vẽ các block đã dedup
-    for (final entry in dedupedEntries) {
       final rect = entry.rect;
-      final textBlock = entry.block;
+      final block = entry.block;
 
-      // Normalize key for translation lookup
-      final String normalizedKey = textBlock.text.trim()
-          .replaceAll(RegExp(r'[ \t]+'), ' ')
-          .toLowerCase();
-      
-      final String translatedText = translatedBlocks[normalizedKey] ?? "";
-      final String displayText = translatedText.isNotEmpty ? translatedText : textBlock.text;
+      final String id = block.id;
+      final String translatedText = translatedBlocks[id] ?? "";
+      final String displayText = translatedText.isNotEmpty ? translatedText : block.text;
 
       // Draw background with rounded corners
       final rRect = RRect.fromRectAndRadius(rect, const Radius.circular(4));
@@ -106,15 +88,6 @@ class TextDetectorPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// Tính Intersection over Union (IoU) của 2 rect
-  double _iou(Rect a, Rect b) {
-    final intersection = a.intersect(b);
-    if (intersection.isEmpty) return 0.0;
-    final intersectionArea = intersection.width * intersection.height;
-    final unionArea = a.width * a.height + b.width * b.height - intersectionArea;
-    if (unionArea <= 0) return 0.0;
-    return intersectionArea / unionArea;
-  }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
@@ -122,7 +95,7 @@ class TextDetectorPainter extends CustomPainter {
 
 /// Helper class to pair a TextBlock with its translated Rect
 class _BlockEntry {
-  final TextBlock block;
+  final TrackedTextBlock block;
   final Rect rect;
   _BlockEntry(this.block, this.rect);
 }

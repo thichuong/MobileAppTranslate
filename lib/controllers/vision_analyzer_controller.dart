@@ -12,6 +12,7 @@ import '../controllers/translate_controller.dart';
 import '../controllers/settings_controller.dart';
 import '../utils/image_utils.dart';
 import '../utils/vision_results_processor.dart';
+import '../models/tracked_text_block.dart';
 import 'camera_manager_controller.dart';
 
 enum VisionMode { text, object }
@@ -22,13 +23,13 @@ class VisionAnalyzerController extends GetxController {
   final TranslateController _translateController = Get.find<TranslateController>();
   final SettingsController _settingsController = Get.find<SettingsController>();
   
-  final VisionResultsProcessor _processor = VisionResultsProcessor();
+  final VisionResultsProcessor processor = VisionResultsProcessor();
 
   final Rx<VisionMode> mode = VisionMode.text.obs;
   final RxBool isDetecting = false.obs;
   
   // Results
-  final Rx<RecognizedText?> recognizedText = Rx<RecognizedText?>(null);
+  final RxList<TrackedTextBlock> trackedTextBlocks = <TrackedTextBlock>[].obs;
   final RxList<DetectedObject> detectedObjects = <DetectedObject>[].obs;
   
   // Translation Caches
@@ -108,9 +109,9 @@ class VisionAnalyzerController extends GetxController {
         final script = _getScriptFromLanguage(_translateController.sourceLanguage.value);
         final results = await _visionService.recognizeText(inputImage, script: script);
         
-        final processedResults = _processor.smoothTextResults(results);
+        final processedResults = processor.smoothTextResults(results);
         await _translateTextBlocks(processedResults);
-        recognizedText.value = processedResults;
+        trackedTextBlocks.assignAll(processedResults);
       } else {
         final results = await _visionService.detectObjects(inputImage);
         await _translateObjectLabels(results);
@@ -133,15 +134,17 @@ class VisionAnalyzerController extends GetxController {
     }
   }
 
-  Future<void> _translateTextBlocks(RecognizedText results) async {
+  Future<void> _translateTextBlocks(List<TrackedTextBlock> blocks) async {
     final futures = <Future>[];
-    for (final block in results.blocks) {
-      final normalized = block.text.toLowerCase().trim();
-      if (normalized.isEmpty || translatedTextBlocks.containsKey(normalized)) continue;
+    for (final block in blocks) {
+      final id = block.id;
+      final text = block.text.trim();
+      
+      if (text.isEmpty || translatedTextBlocks.containsKey(id)) continue;
 
-      futures.add(_translationService.translateText(normalized).then((translated) {
+      futures.add(_translationService.translateText(text).then((translated) {
         if (translated.isNotEmpty && !translated.startsWith("Translation error")) {
-          translatedTextBlocks[normalized] = translated;
+          translatedTextBlocks[id] = translated;
         }
       }));
     }

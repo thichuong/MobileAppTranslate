@@ -77,9 +77,9 @@ class VisionDetectorScreen extends StatelessWidget {
 
       CustomPainter? painter;
       if (controller.mode.value == VisionMode.text) {
-        if (controller.recognizedText.value != null) {
+        if (controller.trackedTextBlocks.isNotEmpty) {
           painter = TextDetectorPainter(
-            controller.recognizedText.value!,
+            controller.trackedTextBlocks,
             controller.imageSize!,
             controller.imageRotation!,
             controller.translatedTextBlocks,
@@ -236,8 +236,7 @@ class VisionDetectorScreen extends StatelessWidget {
 
           // Translate Button
           Obx(() {
-            final hasResults = (controller.recognizedText.value != null &&
-                    controller.recognizedText.value!.text.isNotEmpty) ||
+          final hasResults = (controller.trackedTextBlocks.isNotEmpty) ||
                 (controller.detectedObjects.isNotEmpty);
 
             if (!hasResults || controller.isLive.value) {
